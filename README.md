@@ -12,6 +12,7 @@ __Requirements__
 Open a terminal and type,
 ```
 npm i c2-bin -g
+npm i maboiteaspam/c2-bin -g
 ```
 
 ## Usage
