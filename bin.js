@@ -12,11 +12,15 @@ var resolve = require('resolve').sync;
 var options = require('grunt-cli/lib/cli').options;
 var completion = require('grunt-cli/lib/completion');
 var info = require('grunt-cli/lib/info');
+var fs = require('fs');
 var path = require('path');
 
 
 var basedir = process.cwd();
 var libdir = __dirname;
+var gruntfile = fs.existsSync(path.join(basedir, 'Gruntfile.js'))
+  ? path.join(basedir, 'Gruntfile.js')
+  : path.join(libdir, 'Gruntfile.js');
 var gruntpath;
 
 // Do stuff based on CLI options.
@@ -44,4 +48,5 @@ try {
 
 // Everything looks good. Require local grunt and run it.
 var grunt = require(gruntpath);
-grunt.cli({base: basedir, gruntfile: libdir+'/Gruntfile.js'});
+
+grunt.cli({base: basedir, gruntfile: gruntfile});

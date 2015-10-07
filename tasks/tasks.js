@@ -1,6 +1,8 @@
 var exec = require('child_process').exec;
 var chokidar = require('chokidar');
 var async = require('async');
+var minimist = require('minimist');
+var fs = require('fs');
 
 module.exports = function (grunt) {
 
@@ -137,8 +139,80 @@ module.exports = function (grunt) {
     });
   });
 
-  grunt.registerTask('hello', function() {
-    console.log("hello, here i am")
+  grunt.registerTask('update', function() {
+    var done = this.async();
+    spawnPhp('php -c php.ini composer.phar update', function () {
+      done();
+    });
+  });
+
+  grunt.registerTask('install', function() {
+    var done = this.async();
+    spawnPhp('php -c php.ini composer.phar install', function () {
+      done();
+    });
+  });
+
+  grunt.registerTask('link', function() {
+    var argv = minimist(process.argv.slice(2));
+    var packagePath = argv.p || argv.package;
+    if (!packagePath) {
+      return grunt.log.fail("--package|-p [path/to/package] is required.");
+    }
+    if (!fs.existsSync(packagePath)) {
+      return grunt.log.fail("Package path does not exists.")
+    }
+    // -
+    if (!fs.existsSync("composer.json")) {
+      return grunt.log.fail("Composer.json does not exists in the current directory.")
+    }
+
+    var packageComposer = JSON.parse(fs.readFileSync(packagePath+ "/composer.json"));
+    var projectComposer = JSON.parse(fs.readFileSync("composer.json"));
+
+    var pkgName = packageComposer.name;
+    if (!pkgName) {
+      return grunt.log.fail('Missing package name, can not install.');
+    }
+
+    if (!projectComposer.require) {
+      projectComposer.require = {};
+    }
+
+    if (projectComposer.require[pkgName]
+      && projectComposer.require[pkgName] !== "@dev") {
+      grunt.log.warn("Dependency already declared in the composer file as %s, overwriting.",
+        projectComposer.require[pkgName])
+    }
+
+    projectComposer.require[pkgName] = "@dev";
+
+    var repositories = projectComposer.repositories;
+    var declared = false;
+    repositories.forEach(function (repo){
+      if (repo.url.match(packagePath)) {
+        grunt.log.warn('Package already linked as %j', repo);
+        declared = true;
+      }
+    })
+
+    if (!declared) {
+      repositories.push({
+        type: 'vcs',
+        url: packagePath
+      })
+    }
+
+    grunt.log.ok('All done, writing the composer file.');
+
+    grunt.file.write("composer.json", JSON.stringify(projectComposer, null, 2))
+
+    grunt.log.ok('Updating composer..');
+
+    var done = this.async();
+    spawnPhp('php -c php.ini composer.phar install', function () {
+      done();
+    });
   });
 
 };

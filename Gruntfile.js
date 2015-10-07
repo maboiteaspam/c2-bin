@@ -2,6 +2,9 @@ var exec = require('child_process').exec;
 
 module.exports = function (grunt) {
 
+  grunt.loadTasks(__dirname + '/tasks/');
+  grunt.loadTasks(__dirname + '/node_modules/grunt-open/tasks/');
+
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -16,10 +19,6 @@ module.exports = function (grunt) {
       }
     }
   });
-
-  // Load the plugin that provides the "uglify" task.
-  grunt.loadTasks('tasks/');
-  grunt.loadNpmTasks('grunt-open');
 
   // Default task(s).
   grunt.registerTask('init', [

@@ -33,7 +33,7 @@ If `[task name]` is not provided,
 
 Description of available tasks within this binary.
 
-#### Initialize a project
+##### Initialize a project
 
 Generates project data
 required to run the application.
@@ -42,14 +42,23 @@ required to run the application.
 c2-bin init
 ```
 
-
-#### Run a project
+##### Run a project
 
 Prepare and starts the project
 with all features enabled.
 
 ```
 c2-bin run
+```
+
+##### Link a package
+
+Links a local package
+in the current project
+vendors directory.
+
+```
+c2-bin link paht/to/package
 ```
 
 ## Development
