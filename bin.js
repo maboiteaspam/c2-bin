@@ -47,6 +47,4 @@ try {
 }
 
 // Everything looks good. Require local grunt and run it.
-var grunt = require(gruntpath);
-
-grunt.cli({base: basedir, gruntfile: gruntfile});
+require(gruntpath).cli({base: basedir, gruntfile: gruntfile});

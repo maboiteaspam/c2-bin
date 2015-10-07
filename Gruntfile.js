@@ -7,7 +7,7 @@ module.exports = function (grunt) {
 
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: grunt.file.readJSON(__dirname + '/package.json'),
     dumps_file_path: [],
 
     open : {
