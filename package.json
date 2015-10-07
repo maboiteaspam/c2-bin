@@ -1,0 +1,12 @@
+{
+  "name": "c2-bin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bin.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "WTF"
+}
