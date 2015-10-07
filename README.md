@@ -50,3 +50,15 @@ with all features enabled.
 ```
 c2-bin run
 ```
+
+## Development
+
+To develop this project,
+clone it locally, then,
+link this local copy
+ to your global npm binaries.
+
+```
+cd /some where/c2-bin/
+npm link . --local
+```
