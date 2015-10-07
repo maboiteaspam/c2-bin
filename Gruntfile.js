@@ -1,0 +1,39 @@
+var exec = require('child_process').exec;
+
+module.exports = function (grunt) {
+
+  // Project configuration.
+  grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+    dumps_file_path: [],
+
+    open : {
+      browser : {
+        path: 'http://127.0.0.1:8000/'
+      },
+      options: {
+        delay: 3000
+      }
+    }
+  });
+
+  // Load the plugin that provides the "uglify" task.
+  grunt.loadTasks('tasks/');
+  grunt.loadNpmTasks('grunt-open');
+
+  // Default task(s).
+  grunt.registerTask('init', [
+    'classes-dump',
+    'cache-init',
+    'http-init',
+    'db-init'
+  ]);
+  grunt.registerTask('run', [
+    'init',
+    'fs-cache-dump',
+    'open:browser',
+    'watch',
+    'start'
+  ]);
+  grunt.registerTask('default', ['run']);
+};
