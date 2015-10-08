@@ -2,8 +2,10 @@ var exec = require('child_process').exec;
 var chokidar = require('chokidar');
 var async = require('async');
 var minimist = require('minimist');
+var path = require('path');
 var fs = require('fs');
-var fs = require('fs');
+var glob = require('glob');
+var inquirer = require("inquirer");
 
 module.exports = function (grunt) {
 
@@ -71,31 +73,31 @@ module.exports = function (grunt) {
     })
   };
 
-  grunt.registerTask('db-init', function() {
+  grunt.registerTask('db-init', 'Initialize the database and its schema according to your app.', function() {
     var done = this.async();
     spawnPhp('php cli.php db:init', function (error) {
       done(error);
     });
   });
-  grunt.registerTask('cache-init', function() {
+  grunt.registerTask('cache-init', 'Build assets and other pre compiled stuff.', function() {
     var done = this.async();
     spawnPhp('php cli.php cache:init', function (error) {
       done(error);
     });
   });
-  grunt.registerTask('http-init', function() {
+  grunt.registerTask('http-init', 'Initialize a bridge file for your http server.', function() {
     var done = this.async();
     spawnPhp('php cli.php http:bridge', function (error) {
       done(error);
     });
   });
-  grunt.registerTask('check-schema', function() {
+  grunt.registerTask('check-schema', 'Refresh the DB schema according to your app', function() {
     var done = this.async();
     spawnPhp('php cli.php db:refresh', function (error) {
       done(error);
     });
   });
-  grunt.registerTask('fs-cache-dump', function() {
+  grunt.registerTask('fs-cache-dump', 'INTERNAL: Dumps all assets path from your app/', function() {
     var done = this.async();
     var path_to_watch = [];
 
@@ -119,17 +121,17 @@ module.exports = function (grunt) {
     }, true);
   });
 
-  grunt.registerTask('link', function() {
+  grunt.registerTask('link', 'Link another local package to that project. Useful for development under windows.', function() {
     var argv = minimist(process.argv.slice(2));
 
     var p = argv.p || argv.path;
 
     if (!fs.existsSync(p)) {
-      return grunt.log.fail("path must exists: "+ p );
+      return grunt.log.error("path must exists: "+ p );
     }
 
     if (!fs.existsSync(p+"/composer.json")) {
-      return grunt.log.fail("This folder does not have the reuired composer.json file: "+ p );
+      return grunt.log.error("This folder does not have the reuired composer.json file: "+ p );
     }
 
     var packageComposer = JSON.parse(fs.readFileSync(p+"/composer.json"));
@@ -141,11 +143,11 @@ module.exports = function (grunt) {
     if (!localComposer.require) localComposer.require = {};
 
     if (localComposer.require[packageName]) {
-      grunt.log.warn("overwriting dependency "+packageName+":"+localComposer.require[packageName]+" to dev-master");
+      grunt.log.error("overwriting dependency "+packageName+":"+localComposer.require[packageName]+" to dev-master");
     }
     localComposer.require[packageName] = "dev-master";
 
-    localComposer.require.push({
+    localComposer.repositories.push({
       type: "vcs",
       url: p
     });
@@ -154,57 +156,133 @@ module.exports = function (grunt) {
       JSON.stringify(localComposer)
     );
 
-    var done = this.async();
-    spawnPhp('php composer.phar update', function () {
+    grunt.file.delete('vendors/'+packageName);
+    if (process.platform.match(/win/)) {
+      exec('MKLINK /J vendor\\'+packageName.replace(/\//, '\\')+' '+p+'');
+    } else {
+      exec("ln -s "+p+" vendors/"+packageName);
+    }
 
-      grunt.file.delete('vendors/'+packageName);
-
-      if (process.platform.match(/win/)) {
-        //  [/A /D /H /J /Q /X]
-        exec("MKLINK /D "+p+" vendors/"+packageName);
-      } else {
-        exec("ln -s "+p+" vendors/"+packageName);
-      }
-
-      grunt.log.ok("All done!");
-      done();
-    });
+    grunt.log.subhead("All done!");
+    grunt.log.ok("Don't forget to run composer update");
+    grunt.log.writeln("");
+    grunt.log.writeln("  php composer.phar update");
+    grunt.log.writeln("");
 
   });
 
-  grunt.registerTask('watch', function() {
+  grunt.registerTask('watch', 'Start watching your application assets for re-build.', function() {
     var watchPaths = grunt.config.get('path_to_watch');
     if (watchPaths) {
       spawnWatchr( watchPaths )
     }
   });
 
-  grunt.registerTask('classes-dump', function() {
+  grunt.registerTask('classes-dump', 'Generate autoloader for composer', function() {
     var done = this.async();
     spawnPhp('php composer.phar dumpautoload', function () {
       done();
     });
   });
 
-  grunt.registerTask('start', function() {
+  grunt.registerTask('start', 'Starts web server for local development purpose', function() {
     var done = this.async();
     spawnPhp('php -S localhost:8000 -t www app.php', function () {
       done();
     });
   });
 
-  grunt.registerTask('update', function() {
+  grunt.registerTask('update', 'Run composer update --prefer-source command', function() {
     var done = this.async();
     spawnPhp('php composer.phar update --prefer-source', function () {
       done();
     });
   });
 
-  grunt.registerTask('install', function() {
+  grunt.registerTask('install', 'Run composer install --prefer-source command', function() {
     var done = this.async();
     spawnPhp('php composer.phar install --prefer-source', function () {
       done();
     });
+  });
+
+
+  var generateDir = function (targetPath, srcPath, data, onFile) {
+    targetPath = path.normalize(targetPath);
+    srcPath = path.normalize(srcPath);
+
+    // Merge task-specific and/or target-specific options with these defaults:
+    var files = glob.sync(path.join(srcPath, "**/**.*"), {dot:true});
+
+    if (!files.length) {
+      grunt.log.warn(
+        'Destination `' + targetPath +
+        '` not written because `'+srcPath+'` is empty.'
+      );
+      return;
+    }
+
+    // Iterate over all specified file groups.
+    files.forEach(function(filePath) {
+
+      filePath = path.normalize(filePath);
+      var targetFilePath = filePath.replace(srcPath, targetPath);
+
+      var template = grunt.file.read(filePath);
+
+      if (onFile) {
+        template = onFile (filePath, template);
+      }
+
+      // Print a success message
+      grunt.log.writeln('File `' + targetFilePath + '` creating..');
+
+      var result = grunt.template.process(template, {data: data});
+
+      // Write the destination file
+      grunt.file.write(targetFilePath, result);
+    })
+  };
+
+  grunt.registerTask('generate', function() {
+    var done = this.async();
+
+    inquirer.prompt([{
+      type:'list', message:"Which type of module would you like to create :", choices: ['component', 'app'], name:'modType'
+    }], function( answers ) {
+      var modType = answers.modType;
+
+      inquirer.prompt([{
+        type:'input', message:"Please tell me the namespace to use:", name:'ns'
+      }], function( answers ) {
+        var NS = answers.ns;
+
+        grunt.log.success("Got it! Generating new "+modType+" under namespace "+NS);
+
+        var adjustFileContent = function (filePath, fileContent) {
+          if (filePath.match(/gitignore/)) {
+            if (modType==='component') {
+              if (!fileContent.match(/composer\.lock/)) {
+                fileContent += "\ncomposer.lock\n";
+              }
+            } else if (modType==='app') {
+              if (fileContent.match(/composer\.lock/)) {
+                fileContent = fileContent.replace(/composer\.lock\s*/, "")
+              }
+            }
+          }
+          return fileContent;
+        };
+
+        generateDir(process.cwd(), path.join(__dirname, "/../templates/module"), {
+          NS: NS
+        }, adjustFileContent);
+
+        done();
+      });
+    });
+
+
   });
 
 };

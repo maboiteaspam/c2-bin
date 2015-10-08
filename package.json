@@ -17,9 +17,12 @@
     "async": "^1.4.2",
     "chokidar": "^1.2.0",
     "findup-sync": "^0.3.0",
+    "glob": "^5.0.15",
     "grunt": "^0.4.5",
     "grunt-cli": "^0.1.13",
     "grunt-open": "^0.2.3",
+    "grunt-template": "^0.2.3",
+    "inquirer": "^0.10.1",
     "minimist": "^1.2.0",
     "resolve": "^1.1.6"
   }
