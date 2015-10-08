@@ -33,6 +33,15 @@ If `[task name]` is not provided,
 
 Description of available tasks within this binary.
 
+##### Generate empty package
+
+Generates an empty package 
+with appropriate file structure and loader.
+
+```
+c2-bin generate
+```
+
 ##### Initialize a project
 
 Generates project data
@@ -58,7 +67,7 @@ in the current project
 vendors directory.
 
 ```
-c2-bin link paht/to/package
+c2-bin link -p=..\path\to\package
 ```
 
 ## Development
