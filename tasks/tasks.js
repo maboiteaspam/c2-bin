@@ -3,6 +3,7 @@ var chokidar = require('chokidar');
 var async = require('async');
 var minimist = require('minimist');
 var fs = require('fs');
+var fs = require('fs');
 
 module.exports = function (grunt) {
 
@@ -64,7 +65,7 @@ module.exports = function (grunt) {
       ignorePermissionErrors: false,
       atomic: true
     }).on('all', function(event, filePath){
-      spawnPhp('php -c php.ini cli.php cache:update '+event+' '+filePath, function (error) {
+      spawnPhp('php cli.php cache:update '+event+' '+filePath, function (error) {
         grunt.log.ok('cache is now up to date');
       });
     })
@@ -72,25 +73,25 @@ module.exports = function (grunt) {
 
   grunt.registerTask('db-init', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini cli.php db:init', function (error) {
+    spawnPhp('php cli.php db:init', function (error) {
       done(error);
     });
   });
   grunt.registerTask('cache-init', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini cli.php cache:init', function (error) {
+    spawnPhp('php cli.php cache:init', function (error) {
       done(error);
     });
   });
   grunt.registerTask('http-init', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini cli.php http:bridge', function (error) {
+    spawnPhp('php cli.php http:bridge', function (error) {
       done(error);
     });
   });
   grunt.registerTask('check-schema', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini cli.php db:refresh', function (error) {
+    spawnPhp('php cli.php db:refresh', function (error) {
       done(error);
     });
   });
@@ -98,7 +99,7 @@ module.exports = function (grunt) {
     var done = this.async();
     var path_to_watch = [];
 
-    spawnPhp('php -c php.ini cli.php fs-cache:dump', function (error, stdout, stderr) {
+    spawnPhp('php cli.php fs-cache:dump', function (error, stdout, stderr) {
       var data = JSON.parse(stdout);
       data.forEach(function(cache){
         if (cache.config
@@ -118,6 +119,59 @@ module.exports = function (grunt) {
     }, true);
   });
 
+  grunt.registerTask('link', function() {
+    var argv = minimist(process.argv.slice(2));
+
+    var p = argv.p || argv.path;
+
+    if (!fs.existsSync(p)) {
+      return grunt.log.fail("path must exists: "+ p );
+    }
+
+    if (!fs.existsSync(p+"/composer.json")) {
+      return grunt.log.fail("This folder does not have the reuired composer.json file: "+ p );
+    }
+
+    var packageComposer = JSON.parse(fs.readFileSync(p+"/composer.json"));
+    var packageName = packageComposer.name;
+
+    var localComposer = JSON.parse(fs.readFileSync("composer.json"))
+
+    if (!localComposer.repositories) localComposer.repositories = [];
+    if (!localComposer.require) localComposer.require = {};
+
+    if (localComposer.require[packageName]) {
+      grunt.log.warn("overwriting dependency "+packageName+":"+localComposer.require[packageName]+" to dev-master");
+    }
+    localComposer.require[packageName] = "dev-master";
+
+    localComposer.require.push({
+      type: "vcs",
+      url: p
+    });
+
+    fs.writeFileSync ( "composer.json",
+      JSON.stringify(localComposer)
+    );
+
+    var done = this.async();
+    spawnPhp('php composer.phar update', function () {
+
+      grunt.file.delete('vendors/'+packageName);
+
+      if (process.platform.match(/win/)) {
+        //  [/A /D /H /J /Q /X]
+        exec("MKLINK /D "+p+" vendors/"+packageName);
+      } else {
+        exec("ln -s "+p+" vendors/"+packageName);
+      }
+
+      grunt.log.ok("All done!");
+      done();
+    });
+
+  });
+
   grunt.registerTask('watch', function() {
     var watchPaths = grunt.config.get('path_to_watch');
     if (watchPaths) {
@@ -127,28 +181,28 @@ module.exports = function (grunt) {
 
   grunt.registerTask('classes-dump', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini composer.phar dumpautoload', function () {
+    spawnPhp('php composer.phar dumpautoload', function () {
       done();
     });
   });
 
   grunt.registerTask('start', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini -S localhost:8000 -t www app.php', function () {
+    spawnPhp('php -S localhost:8000 -t www app.php', function () {
       done();
     });
   });
 
   grunt.registerTask('update', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini composer.phar update --prefer-source', function () {
+    spawnPhp('php composer.phar update --prefer-source', function () {
       done();
     });
   });
 
   grunt.registerTask('install', function() {
     var done = this.async();
-    spawnPhp('php -c php.ini composer.phar install --prefer-source', function () {
+    spawnPhp('php composer.phar install --prefer-source', function () {
       done();
     });
   });
