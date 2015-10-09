@@ -51,12 +51,12 @@ class ControllersProvider implements
 
     public function connect(Application $app)
     {
-        $controllers = $app['controllers_factory'];
-        /*
-        $controllers->get( '/',
-            $app['service.controller']->service()
-        )->bind ('route_name');
-         */
-        return $controllers;
+//        $controllers = $app['controllers_factory'];
+//
+//        $controllers->get( '/',
+//            $app['your.service.controller']->your_controller_method()
+//        )->bind ('route_name');
+//
+//        return $controllers;
     }
 }
