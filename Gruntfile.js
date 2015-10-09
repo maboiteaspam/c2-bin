@@ -34,5 +34,9 @@ module.exports = function (grunt) {
     'watch',
     'start'
   ]);
+  grunt.registerTask('generate', [
+    'get-composer',
+    'generate-app'
+  ]);
   grunt.registerTask('default', ['run']);
 };

@@ -6,6 +6,8 @@ var path = require('path');
 var fs = require('fs');
 var glob = require('glob');
 var inquirer = require("inquirer");
+var got = require("got");
+var once = require("once");
 
 module.exports = function (grunt) {
 
@@ -31,7 +33,7 @@ module.exports = function (grunt) {
         if (!killed && error !== null) {
           grunt.log.error('php server exec error: ' + error);
         }
-        done(error, stdout, stderr);
+        if(done) done(error, stdout, stderr);
       });
     child.stdout.on('data', function (d){
       if (!voidStdout) {
@@ -152,7 +154,14 @@ module.exports = function (grunt) {
     var packageComposer = JSON.parse(fs.readFileSync(p+"/composer.json"));
     var packageName = packageComposer.name;
 
-    var localComposer = JSON.parse(fs.readFileSync("composer.json"))
+    var localComposer;
+    try{
+      localComposer = JSON.parse(fs.readFileSync("composer.json"))
+    }catch(ex){
+      grunt.log.error("Composer file is malformed, please check composer.json");
+      grunt.log.error(ex.message)
+      return false;
+    }
 
     if (!localComposer.repositories) localComposer.repositories = [];
     if (!localComposer.require) localComposer.require = {};
@@ -162,15 +171,24 @@ module.exports = function (grunt) {
     }
     localComposer.require[packageName] = "dev-master";
 
-    localComposer.repositories.push({
-      type: "vcs",
-      url: p
-    });
+    var found = false;
+    localComposer.repositories.forEach(function (v) {
+      if (v.url.match(packageName)) {
+        found = true;
+      }
+    })
+    if (!found) {
+      localComposer.repositories.push({
+        type: "vcs",
+        url: p
+      });
+    }
 
     fs.writeFileSync ( "composer.json",
       JSON.stringify(localComposer, null, 2)
     );
 
+    grunt.file.mkdir('vendor/'+packageName);
     grunt.file.delete('vendor/'+packageName);
     if (process.platform.match(/win/)) {
       exec('MKLINK /J vendor\\'+packageName.replace(/\//, '\\')+' '+p+'');
@@ -193,16 +211,41 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('classes-dump', 'Generate autoloader for composer', function() {
+  grunt.registerTask('start', 'Starts web server for local development purpose', function() {
     var done = this.async();
-    spawnComposer('dumpautoload', function () {
+    spawnPhp('-S localhost:8000 -t www app.php', function () {
       done();
     });
   });
 
-  grunt.registerTask('start', 'Starts web server for local development purpose', function() {
+
+  grunt.registerTask('get-composer', 'Generate autoloader for composer', function() {
+    if (fs.existsSync("composer.phar")) {
+      return grunt.log.ok("Composer is in your project, let s move on !");
+    }
     var done = this.async();
-    spawnPhp('-S localhost:8000 -t www app.php', function () {
+    var installer = "";
+    var gotIt = once(function () {
+      var php = spawnPhp('', function () {
+        done();
+      });
+      php.stdin.write(installer);
+    });
+    got.stream('https://getcomposer.org/installer')
+      .on('data', function (d) {
+        installer += ''+d;
+      })
+      .on('end', function () {
+        gotIt();
+      })
+      .on('close', function () {
+        gotIt();
+      });
+  });
+
+  grunt.registerTask('classes-dump', 'Generate autoloader for composer', function() {
+    var done = this.async();
+    spawnComposer('dumpautoload', function () {
       done();
     });
   });
@@ -259,16 +302,21 @@ module.exports = function (grunt) {
     })
   };
 
-  grunt.registerTask('generate', function() {
+  grunt.registerTask('generate-app', function() {
     var done = this.async();
 
     inquirer.prompt([{
-      type:'list', message:"Which type of module would you like to create :", choices: ['component', 'app'], name:'modType'
+      type:'list',
+      message:"Which type of module would you like to create :",
+      choices: ['design-component', 'component', 'app'],
+      name:'modType'
     }], function( answers ) {
       var modType = answers.modType;
 
       inquirer.prompt([{
-        type:'input', message:"Please tell me the namespace to use:", name:'ns'
+        type:'input',
+        message:"Please tell me the namespace to use:",
+        name:'ns'
       }], function( answers ) {
         var NS = answers.ns;
 
@@ -285,12 +333,14 @@ module.exports = function (grunt) {
                 fileContent = fileContent.replace(/composer\.lock\s*/, "")
               }
             }
+            fileContent += "\nvendor/";
           }
           return fileContent;
         };
 
         generateDir(process.cwd(), path.join(__dirname, "/../templates/module"), {
-          NS: NS
+          NS: NS,
+          modType: modType
         }, adjustFileContent);
 
         done();
