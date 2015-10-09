@@ -156,11 +156,11 @@ module.exports = function (grunt) {
       JSON.stringify(localComposer)
     );
 
-    grunt.file.delete('vendors/'+packageName);
+    grunt.file.delete('vendor/'+packageName);
     if (process.platform.match(/win/)) {
       exec('MKLINK /J vendor\\'+packageName.replace(/\//, '\\')+' '+p+'');
     } else {
-      exec("ln -s "+p+" vendors/"+packageName);
+      exec("ln -s "+p+" vendor/"+packageName);
     }
 
     grunt.log.subhead("All done!");
