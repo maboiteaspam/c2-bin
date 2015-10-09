@@ -153,7 +153,7 @@ module.exports = function (grunt) {
     });
 
     fs.writeFileSync ( "composer.json",
-      JSON.stringify(localComposer)
+      JSON.stringify(localComposer, null, 2)
     );
 
     grunt.file.delete('vendor/'+packageName);
