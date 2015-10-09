@@ -24,6 +24,7 @@ module.exports = function (grunt) {
     var killed = false;
     var stdout = '';
     var stderr = '';
+    cmd = 'php '+cmd;
     grunt.log.subhead(cmd)
     var child = exec(cmd, { stdio: 'pipe' },
       function (error) {
@@ -48,6 +49,20 @@ module.exports = function (grunt) {
     })
     return child;
   };
+  var spawnC = function(cmd, done, voidStdout){
+    cmd = ' cli.php '+ cmd ;
+    if (process.platform.match(/win/)) {
+      cmd = ' -d opcache.enable_cli=0 '+cmd; // see https://github.com/zendtech/ZendOptimizerPlus/issues/167
+    }
+    return spawnPhp( cmd, done, voidStdout);
+  };
+  var spawnComposer = function(cmd, done, voidStdout){
+    cmd = ' composer.phar '+ cmd ;
+    if (process.platform.match(/win/)) {
+      cmd = ' -d opcache.enable_cli=0 '+cmd; // see https://github.com/zendtech/ZendOptimizerPlus/issues/167
+    }
+    return spawnPhp(cmd, done, voidStdout);
+  };
   var spawnWatchr = function (watchPaths) {
     grunt.log.ok('Watching paths');
     grunt.log.writeflags(watchPaths)
@@ -67,7 +82,7 @@ module.exports = function (grunt) {
       ignorePermissionErrors: false,
       atomic: true
     }).on('all', function(event, filePath){
-      spawnPhp('php cli.php cache:update '+event+' '+filePath, function (error) {
+      spawnC('cache:update '+event+' '+filePath, function (error) {
         grunt.log.ok('cache is now up to date');
       });
     })
@@ -75,25 +90,25 @@ module.exports = function (grunt) {
 
   grunt.registerTask('db-init', 'Initialize the database and its schema according to your app.', function() {
     var done = this.async();
-    spawnPhp('php cli.php db:init', function (error) {
+    spawnC('db:init', function (error) {
       done(error);
     });
   });
   grunt.registerTask('cache-init', 'Build assets and other pre compiled stuff.', function() {
     var done = this.async();
-    spawnPhp('php cli.php cache:init', function (error) {
+    spawnC('cache:init', function (error) {
       done(error);
     });
   });
   grunt.registerTask('http-init', 'Initialize a bridge file for your http server.', function() {
     var done = this.async();
-    spawnPhp('php cli.php http:bridge', function (error) {
+    spawnC('http:bridge', function (error) {
       done(error);
     });
   });
   grunt.registerTask('check-schema', 'Refresh the DB schema according to your app', function() {
     var done = this.async();
-    spawnPhp('php cli.php db:refresh', function (error) {
+    spawnC('db:refresh', function (error) {
       done(error);
     });
   });
@@ -101,7 +116,7 @@ module.exports = function (grunt) {
     var done = this.async();
     var path_to_watch = [];
 
-    spawnPhp('php cli.php fs-cache:dump', function (error, stdout, stderr) {
+    spawnC('fs-cache:dump', function (error, stdout, stderr) {
       var data = JSON.parse(stdout);
       data.forEach(function(cache){
         if (cache.config
@@ -180,28 +195,28 @@ module.exports = function (grunt) {
 
   grunt.registerTask('classes-dump', 'Generate autoloader for composer', function() {
     var done = this.async();
-    spawnPhp('php composer.phar dumpautoload', function () {
+    spawnComposer('dumpautoload', function () {
       done();
     });
   });
 
   grunt.registerTask('start', 'Starts web server for local development purpose', function() {
     var done = this.async();
-    spawnPhp('php -S localhost:8000 -t www app.php', function () {
+    spawnPhp('-S localhost:8000 -t www app.php', function () {
       done();
     });
   });
 
-  grunt.registerTask('update', 'Run composer update --prefer-source command', function() {
+  grunt.registerTask('update', 'Run composer update command', function() {
     var done = this.async();
-    spawnPhp('php composer.phar update --prefer-source', function () {
+    spawnComposer('update', function () {
       done();
     });
   });
 
-  grunt.registerTask('install', 'Run composer install --prefer-source command', function() {
+  grunt.registerTask('install', 'Run composer install command', function() {
     var done = this.async();
-    spawnPhp('php composer.phar install --prefer-source', function () {
+    spawnComposer('install', function () {
       done();
     });
   });
