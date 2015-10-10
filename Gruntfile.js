@@ -1,5 +1,3 @@
-var exec = require('child_process').exec;
-
 module.exports = function (grunt) {
 
   grunt.loadTasks(__dirname + '/tasks/');

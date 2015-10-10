@@ -1,15 +1,27 @@
 {
   "prefer-stable": true,
   "minimum-stability": "dev",
-  "name": "c/blog",
+  "name": "<%= NS.toLowerCase().replace(/\\/g, '/') %>",
   "require": {
     "silex/silex": "~1.3",
     "symfony/form": "^2.7",
+    "c/foundation": "dev-master",
+    "c/bootstrap": "dev-master",
     "symfony/validator": "^2.7"
   },
   "autoload": {
     "psr-4": {
       "<%= NS.replace(/\\/, "\\\\") %>\\": "src/"
     }
-  }
+  },
+  "repositories": [
+    {
+      "type": "<%= urlToFoundation.match('http')?'vcs':'path' %>",
+      "url": "<%= urlToFoundation %>"
+    },
+    {
+    "type": "<%= urlToBootstrap.match('http')?'vcs':'path' %>",
+      "url": "<%= urlToBootstrap %>"
+    }
+  ]
 }

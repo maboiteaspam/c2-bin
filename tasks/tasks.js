@@ -1,6 +1,5 @@
 var exec = require('child_process').exec;
 var chokidar = require('chokidar');
-var async = require('async');
 var minimist = require('minimist');
 var path = require('path');
 var fs = require('fs');
@@ -22,11 +21,10 @@ module.exports = function (grunt) {
       destroyChild();
     })
   });
-  var spawnPhp = function(cmd, done, voidStdout){
+  var runProcess = function(cmd, done, voidStdout){
     var killed = false;
     var stdout = '';
     var stderr = '';
-    cmd = 'php '+cmd;
     grunt.log.subhead(cmd)
     var child = exec(cmd, { stdio: 'pipe' },
       function (error) {
@@ -39,11 +37,11 @@ module.exports = function (grunt) {
       if (!voidStdout) {
         grunt.log.success((''+d).replace(/\s+$/, ''))
       }
-      stdout += d;
+      stdout += ''+d;
     });
     child.stderr.on('data', function (d){
       grunt.log.error((''+d).replace(/\s+$/, ''))
-      stderr += d;
+      stderr += ''+d;
     });
     childs.push(function (wasKilled) {
       killed = wasKilled;
@@ -52,18 +50,16 @@ module.exports = function (grunt) {
     return child;
   };
   var spawnC = function(cmd, done, voidStdout){
-    cmd = ' cli.php '+ cmd ;
     if (process.platform.match(/win/)) {
       cmd = ' -d opcache.enable_cli=0 '+cmd; // see https://github.com/zendtech/ZendOptimizerPlus/issues/167
     }
-    return spawnPhp( cmd, done, voidStdout);
+    return runProcess( 'php cli.php '+ cmd, done, voidStdout);
   };
   var spawnComposer = function(cmd, done, voidStdout){
-    cmd = ' composer.phar '+ cmd ;
-    if (process.platform.match(/win/)) {
-      cmd = ' -d opcache.enable_cli=0 '+cmd; // see https://github.com/zendtech/ZendOptimizerPlus/issues/167
+    if (fs.existsSync("composer.phar")) {
+      return runProcess('php composer.phar'+ cmd, done, voidStdout);
     }
-    return spawnPhp(cmd, done, voidStdout);
+    return runProcess('composer '+ cmd, done, voidStdout);
   };
   var spawnWatchr = function (watchPaths) {
     grunt.log.ok('Watching paths');
@@ -213,7 +209,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('start', 'Starts web server for local development purpose', function() {
     var done = this.async();
-    spawnPhp('-S localhost:8000 -t www app.php', function () {
+    runProcess('php -S localhost:8000 -t www app.php', function () {
       done();
     });
   });
@@ -224,23 +220,41 @@ module.exports = function (grunt) {
       return grunt.log.ok("Composer is in your project, let s move on !");
     }
     var done = this.async();
-    var installer = "";
-    var gotIt = once(function () {
-      var php = spawnPhp('', function () {
-        done();
+
+    var getComposer = function (then) {
+      var installer = "";
+      var gotIt = once(function () {
+        grunt.log.warn("...Got it ! Installing composer now...");
+        var php = runProcess('php', function () {
+          if(then) then();
+        });
+        php.stdin.write(installer);
       });
-      php.stdin.write(installer);
-    });
-    got.stream('https://getcomposer.org/installer')
-      .on('data', function (d) {
-        installer += ''+d;
-      })
-      .on('end', function () {
-        gotIt();
-      })
-      .on('close', function () {
-        gotIt();
-      });
+      got.stream('https://getcomposer.org/installer')
+        .on('data', function (d) {
+          installer += ''+d;
+        })
+        .on('end', function () {
+          gotIt();
+        })
+        .on('close', function () {
+          gotIt();
+        });
+    };
+
+
+    spawnComposer('--version', function (error, stdout, stderr) {
+      if (error) {
+        grunt.log.warn("Downloading composer installer ...");
+        grunt.log.warn("");
+        grunt.log.warn("https://getcomposer.org/");
+        grunt.log.warn("");
+        getComposer(done);
+      } else {
+        grunt.log.ok("Composer is in your project, let s move on !");
+        done()
+      }
+    }, true);
   });
 
   grunt.registerTask('classes-dump', 'Generate autoloader for composer', function() {
@@ -265,7 +279,7 @@ module.exports = function (grunt) {
   });
 
 
-  var generateDir = function (targetPath, srcPath, data, onFile) {
+  var generateDir = function (targetPath, srcPath, data) {
     targetPath = path.normalize(targetPath);
     srcPath = path.normalize(srcPath);
 
@@ -287,10 +301,6 @@ module.exports = function (grunt) {
       var targetFilePath = filePath.replace(srcPath, targetPath);
 
       var template = grunt.file.read(filePath);
-
-      if (onFile) {
-        template = onFile (filePath, template);
-      }
 
       // Print a success message
       grunt.log.writeln('File `' + targetFilePath + '` creating..');
@@ -322,26 +332,38 @@ module.exports = function (grunt) {
 
         grunt.log.success("Got it! Generating new "+modType+" under namespace "+NS);
 
-        var adjustFileContent = function (filePath, fileContent) {
-          if (filePath.match(/gitignore/)) {
-            if (modType==='component') {
-              if (!fileContent.match(/composer\.lock/)) {
-                fileContent += "\ncomposer.lock\n";
-              }
-            } else if (modType==='app') {
-              if (fileContent.match(/composer\.lock/)) {
-                fileContent = fileContent.replace(/composer\.lock\s*/, "")
-              }
-            }
-            fileContent += "\nvendor/";
-          }
-          return fileContent;
-        };
+
+        var urlToFoundation = '';
+        var urlToBootstrap = '';
+        if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Foundation'))) {
+          urlToFoundation = path.join( '..', 'C', 'Foundation')
+        }
+        if (fs.existsSync(path.join(process.cwd(), '..','Foundation'))) {
+          urlToFoundation = path.join( '..', 'Foundation')
+        }
+        if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Bootstrap'))) {
+          urlToBootstrap = path.join( '..', 'C', 'Bootstrap')
+        }
+        if (fs.existsSync(path.join(process.cwd(), '..','Bootstrap'))) {
+          urlToBootstrap = path.join( '..', 'Bootstrap')
+        }
+
+        var ignores = [
+          "composer.phar",
+          "run/",
+          "vendor/"
+        ];
+        if (modType!=='app') {
+          ignores.push("composer.lock")
+        }
 
         generateDir(process.cwd(), path.join(__dirname, "/../templates/module"), {
           NS: NS,
+          ignores: ignores,
+          urlToBootstrap: urlToBootstrap,
+          urlToFoundation: urlToFoundation,
           modType: modType
-        }, adjustFileContent);
+        });
 
         done();
       });

@@ -1,0 +1,22 @@
+---
+
+# If you want to write
+# a block-commented Haiku
+# you'll need three pound signs
+
+meta:
+  id: welome
+  description: |
+    Layout for <%= NS %> index page.
+
+structure:
+  - import: HTML:/1-column.yml
+    body_content:
+      set_template: <%= NS %>:/index.php
+      inject_jquery:
+        version: 2.1.3
+        target: page_footer_js
+  - show_dashboard:
+      - time_travel
+      - structure_visualizer
+      - stats

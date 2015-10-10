@@ -22,8 +22,8 @@ $bootHelper = new BootHelper();
 $app = $bootHelper->register($runtime, $configTokens);
 
 <% if (modType && modType.match(/design/)) { %>
-    $thatController = new C\Blog\ControllersProvider();
-    $app->register($thatController);
+$Welcome = new \C\Welcome\ControllersProvider();
+$app->register($Welcome);
 <% } %>
 
 return $bootHelper;

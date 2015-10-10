@@ -24,6 +24,11 @@ class ControllersProvider implements
             $value[] = "some";
             return $value;
         });
+
+        $app['your.controllers'] = $app->share(function() use ($app) {
+            $controllers = new Controllers();
+            return $controllers;
+        });
          */
     }
 
@@ -49,14 +54,14 @@ class ControllersProvider implements
         }
     }
 
-    public function connect(Application $app)
-    {
+//    public function connect(Application $app)
+//    {
 //        $controllers = $app['controllers_factory'];
 //
 //        $controllers->get( '/',
-//            $app['your.service.controller']->your_controller_method()
+//            $app['your.controllers']->your_controller_method()
 //        )->bind ('route_name');
 //
 //        return $controllers;
-    }
+//    }
 }
