@@ -1,3 +1,4 @@
+
 module.exports = function (grunt) {
 
   grunt.loadTasks(__dirname + '/tasks/');
@@ -20,6 +21,7 @@ module.exports = function (grunt) {
 
   // Default task(s).
   grunt.registerTask('init', [
+    'check-module-install',
     'classes-dump',
     'cache-init',
     'http-init',

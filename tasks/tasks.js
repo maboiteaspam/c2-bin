@@ -57,7 +57,7 @@ module.exports = function (grunt) {
   };
   var spawnComposer = function(cmd, done, voidStdout){
     if (fs.existsSync("composer.phar")) {
-      return runProcess('php composer.phar'+ cmd, done, voidStdout);
+      return runProcess('php composer.phar '+ cmd, done, voidStdout);
     }
     return runProcess('composer '+ cmd, done, voidStdout);
   };
@@ -252,6 +252,24 @@ module.exports = function (grunt) {
         getComposer(done);
       } else {
         grunt.log.ok("Composer is in your project, let s move on !");
+        done()
+      }
+    }, true);
+  });
+
+  grunt.registerTask('check-module-install', 'Check if module is locally installed, and do install when needed.', function() {
+    if (fs.existsSync("vendor/autoload.php") && !grunt.option('force')) {
+      return grunt.log.ok("Module is installed, let s move on !");
+    }
+    var done = this.async();
+
+    spawnComposer('install', function (error, stdout, stderr) {
+      if (error) {
+        grunt.log.warn("Module was not installed correctly ...");
+        grunt.log.warn("");
+        done();
+      } else {
+        grunt.log.ok("Moudle is now setup, let s move on !");
         done()
       }
     }, true);
