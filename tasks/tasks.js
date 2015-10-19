@@ -177,7 +177,7 @@ module.exports = function (grunt) {
     })
     if (!found) {
       localComposer.repositories.push({
-        type: "vcs",
+        type: "path",
         url: p
       });
     }
