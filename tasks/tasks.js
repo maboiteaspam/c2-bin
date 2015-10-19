@@ -10,6 +10,11 @@ var once = require("once");
 
 module.exports = function (grunt) {
 
+  var phpPath = grunt.option('php') || 'php';
+  if (process.platform.match(/win/)) {
+    phpPath += ' -d opcache.enable_cli=0 '; // see https://github.com/zendtech/ZendOptimizerPlus/issues/167
+  }
+
   var childs = [];
   process.on('SIGINT', function() {
     childs.forEach(function (destroyChild) {
@@ -50,14 +55,11 @@ module.exports = function (grunt) {
     return child;
   };
   var spawnC = function(cmd, done, voidStdout){
-    if (process.platform.match(/win/)) {
-      cmd = ' -d opcache.enable_cli=0 '+cmd; // see https://github.com/zendtech/ZendOptimizerPlus/issues/167
-    }
-    return runProcess( 'php cli.php '+ cmd, done, voidStdout);
+    return runProcess( phpPath + ' cli.php '+ cmd, done, voidStdout);
   };
   var spawnComposer = function(cmd, done, voidStdout){
     if (fs.existsSync("composer.phar")) {
-      return runProcess('php composer.phar '+ cmd, done, voidStdout);
+      return runProcess(phpPath + ' composer.phar '+ cmd, done, voidStdout);
     }
     return runProcess('composer '+ cmd, done, voidStdout);
   };
