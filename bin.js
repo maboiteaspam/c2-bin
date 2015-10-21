@@ -2,7 +2,10 @@
 
 'use strict';
 
-process.title = 'grunt';
+// binary loader for c2-bin.
+// inspired by original grunt binary loader,
+
+process.title = 'c2-bin - grunt';
 
 // Especially badass external libs.
 var findup = require('findup-sync');
@@ -18,10 +21,11 @@ var path = require('path');
 
 var basedir = process.cwd();
 var libdir = __dirname;
+// path of the Gruntfile.js, can be the default one provided with this module, or your own on the cwd.
+var gruntpath;
 var gruntfile = fs.existsSync(path.join(basedir, 'Gruntfile.js'))
   ? path.join(basedir, 'Gruntfile.js')
   : path.join(libdir, 'Gruntfile.js');
-var gruntpath;
 
 // Do stuff based on CLI options.
 if ('completion' in options) {

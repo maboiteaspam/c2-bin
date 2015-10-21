@@ -1,6 +1,7 @@
 
 module.exports = function (grunt) {
 
+  // load the C oriented tasks
   grunt.loadTasks(__dirname + '/tasks/');
   grunt.loadTasks(__dirname + '/node_modules/grunt-open/tasks/');
 
@@ -19,7 +20,7 @@ module.exports = function (grunt) {
     }
   });
 
-  // Default task(s).
+  // Initialize the app to make it ready to run.
   grunt.registerTask('init', [
     'check-module-install',
     'classes-dump',
@@ -27,6 +28,8 @@ module.exports = function (grunt) {
     'http-init',
     'db-init'
   ]);
+
+  // Init, run, and open the app in your app.
   grunt.registerTask('run', [
     'init',
     'fs-cache-dump',
@@ -34,9 +37,13 @@ module.exports = function (grunt) {
     'watch',
     'start'
   ]);
+
+  // Generate a new module.
   grunt.registerTask('generate', [
     'get-composer',
     'generate-app'
   ]);
+
+  // default task is to Run.
   grunt.registerTask('default', ['run']);
 };
