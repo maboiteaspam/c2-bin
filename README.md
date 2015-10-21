@@ -33,49 +33,38 @@ If `[task name]` is not provided,
 
 Description of available tasks within this binary.
 
-##### Generate empty package
-
-Generates an empty package 
-with appropriate file structure and loader.
-
 ```
-c2-bin generate
-```
-
-##### Initialize a project
-
-Generates project data
-required to run the application.
-
-```
-c2-bin init
-```
-
-##### Run a project
-
-Prepare and starts the project
-with all features enabled.
-
-```
-c2-bin run
-```
-
-##### Link a package
-
-Links a local package
-in the current project
-vendors directory.
-
-```
-c2-bin link -p=..\path\to\package
+              db-init  Initialize the database and its schema according to your
+                       app.
+           cache-init  Build assets and other pre compiled stuff.
+            http-init  Initialize a bridge file for your http server.
+         check-schema  Refresh the DB schema according to your app
+        fs-cache-dump  INTERNAL: Dumps all assets path from your app/
+                 link  Link another local package to that project. Useful for
+                       development under windows.
+                watch  Start watching your application assets for re-build.
+                start  Starts web server for local development purpose
+         get-composer  Generate autoloader for composer
+ check-module-install  Check if module is locally installed, and do install
+                       when needed.
+         classes-dump  Generate autoloader for composer
+               update  Run composer update command
+              install  Run composer install command
+         generate-app  Custom task.
+                 open  Open urls and files from a grunt task *
+                 init  Alias for "check-module-install", "classes-dump",
+                       "cache-init", "http-init", "db-init" tasks.
+                  run  Alias for "init", "fs-cache-dump", "open:browser",
+                       "watch", "start" tasks.
+             generate  Alias for "get-composer", "generate-app" tasks.
+              default  Alias for "run" task.
 ```
 
 ## Development
 
 To develop this project,
 clone it locally, then,
-link this local copy
- to your global npm binaries.
+link this local copy to your global npm binaries.
 
 ```
 cd /some where/c2-bin/
