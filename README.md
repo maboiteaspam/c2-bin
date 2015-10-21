@@ -2,12 +2,12 @@
 
 Command and control binary for C projects.
 
-## Install
-
-__Requirements__
+## Requirements
 
 - node
 - php
+
+## Install
 
 Open a terminal and type,
 ```
