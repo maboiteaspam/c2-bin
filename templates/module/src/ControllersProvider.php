@@ -54,8 +54,8 @@ class ControllersProvider implements
         }
     }
 
-//    public function connect(Application $app)
-//    {
+    public function connect(Application $app)
+    {
 //        $controllers = $app['controllers_factory'];
 //
 //        $controllers->get( '/',
@@ -63,5 +63,5 @@ class ControllersProvider implements
 //        )->bind ('route_name');
 //
 //        return $controllers;
-//    }
+    }
 }

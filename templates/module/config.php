@@ -11,8 +11,6 @@ return [
     'esi.secret'            => 'secret',
     'form.secret'           => md5(__DIR__.'/run/'),
 
-    "security.firewalls"    => [],
-
     'monolog.logfile'       => '%run.path%/development.log',
 
     'httpcache.check_taged_resource_freshness' => true,
@@ -58,13 +56,13 @@ return [
     ],
     'assets.bridge_file_path' => '%project.path%/run/bridge.php',
 
-    'capsule.connections' => [
-        "default"=>[
-            'driver'    => 'sqlite',
-            'database'  => '%project.path%/run/database.sqlite',
-            'prefix'    => '',
-            'charset'   => 'utf8',
-            'collation' => 'utf8_unicode_ci',
-        ],
-    ],
+//    'capsule.connections' => [
+//        "default"=>[
+//            'driver'    => 'sqlite',
+//            'database'  => '%project.path%/run/database.sqlite',
+//            'prefix'    => '',
+//            'charset'   => 'utf8',
+//            'collation' => 'utf8_unicode_ci',
+//        ],
+//    ],
 ];
