@@ -83,7 +83,7 @@ module.exports = function (grunt) {
       atomic: true
     }).on('all', function(event, filePath){
       spawnC('cache:update '+event+' '+filePath, function (error) {
-        grunt.log.ok('cache is now up to date');
+        grunt.log.ok('Al done');
       });
     })
   };
