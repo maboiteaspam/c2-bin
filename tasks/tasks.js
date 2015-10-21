@@ -10,6 +10,8 @@ var once = require("once");
 
 module.exports = function (grunt) {
 
+  var verbose = !!grunt.option('verbose');
+
   var phpPath = grunt.option('php') || 'php';
   if (process.platform.match(/win/)) {
     phpPath += ' -d opcache.enable_cli=0 '; // see https://github.com/zendtech/ZendOptimizerPlus/issues/167
@@ -55,6 +57,7 @@ module.exports = function (grunt) {
     return child;
   };
   var spawnC = function(cmd, done, voidStdout){
+    if (verbose) cmd += " -v";
     return runProcess( phpPath + ' cli.php '+ cmd, done, voidStdout);
   };
   var spawnComposer = function(cmd, done, voidStdout){
