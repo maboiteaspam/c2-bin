@@ -41,7 +41,8 @@ module.exports = function (grunt) {
   // Generate a new module.
   grunt.registerTask('generate', [
     'get-composer',
-    'generate-app'
+    'generate-app',
+    'install'
   ]);
 
   // default task is to Run.
