@@ -289,15 +289,39 @@ module.exports = function (grunt) {
 
   grunt.registerTask('update', 'Run composer update command', function() {
     var done = this.async();
-    spawnComposer('update', function () {
-      done();
+    inquirer.prompt([{
+      type:'list',
+      message:"Would you like to run composer UPDATE command now ?",
+      choices: ['yes, please get it done', 'no, i will do it later'],
+      name:'proceed'
+    }], function( answers ) {
+      var proceed = answers.proceed;
+      if (proceed==="yes, please get it done") {
+        spawnComposer('update', function () {
+          done();
+        });
+      } else {
+        done();
+      }
     });
   });
 
   grunt.registerTask('install', 'Run composer install command', function() {
     var done = this.async();
-    spawnComposer('install', function () {
-      done();
+    inquirer.prompt([{
+      type:'list',
+      message:"Would you like to run composer INSTALL command now ?",
+      choices: ['yes, please get it done', 'no, i will do it later'],
+      name:'proceed'
+    }], function( answers ) {
+      var proceed = answers.proceed;
+      if (proceed==="yes, please get it done") {
+        spawnComposer('install', function () {
+          done();
+        });
+      } else {
+        done();
+      }
     });
   });
 
@@ -356,19 +380,29 @@ module.exports = function (grunt) {
         grunt.log.success("Got it! Generating new "+modType+" under namespace "+NS);
 
 
+        // -
         var urlToFoundation = '';
-        var urlToBootstrap = '';
         if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Foundation'))) {
           urlToFoundation = path.join( '..', 'C', 'Foundation')
         }
         if (fs.existsSync(path.join(process.cwd(), '..','Foundation'))) {
           urlToFoundation = path.join( '..', 'Foundation')
         }
+        // -
+        var urlToBootstrap = '';
         if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Bootstrap'))) {
           urlToBootstrap = path.join( '..', 'C', 'Bootstrap')
         }
         if (fs.existsSync(path.join(process.cwd(), '..','Bootstrap'))) {
           urlToBootstrap = path.join( '..', 'Bootstrap')
+        }
+        //-
+        var urlToWelcome = '';
+        if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Welcome'))) {
+          urlToWelcome = path.join( '..', 'C', 'Welcome')
+        }
+        if (fs.existsSync(path.join(process.cwd(), '..', 'Welcome'))) {
+          urlToWelcome = path.join( '..', 'Welcome')
         }
 
         var ignores = [
@@ -385,6 +419,7 @@ module.exports = function (grunt) {
           ignores: ignores,
           urlToBootstrap: urlToBootstrap,
           urlToFoundation: urlToFoundation,
+          urlToWelcome: urlToWelcome,
           modType: modType
         });
 
