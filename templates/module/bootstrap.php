@@ -31,4 +31,7 @@ $Welcome = new \C\Welcome\ControllersProvider();
 $app->register($Welcome);
 <% } %>
 
+$thisModule = new \<%= NS %>\ControllersProvider();
+$app->register($thisModule);
+
 return $bootHelper;
