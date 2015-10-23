@@ -1,6 +1,16 @@
 # c2-bin
 
-Command and control binary for C projects.
+Command and control binary for C projects. C projects are based on C framework, see more about it here https://github.com/maboiteaspam/Welcome
+
+`c2-bin` brings to you several utilities to work on a C project.
+
+You ll start with `generate` command to help you to get a module setup.
+
+Then, use the `run` command, it will start your module and get you ready to develop.
+
+Other commands such `get-composer` or `link` are handy helpers for your daily work.
+
+Finally you can refer to __develop__ section of this __README__ to PR your own changes and improvements about this module.
 
 ## Requirements
 
@@ -11,8 +21,10 @@ Command and control binary for C projects.
 
 Open a terminal and type,
 ```
-npm i c2-bin -g
 npm i maboiteaspam/c2-bin -g
+
+// This will be available after the first release only.
+npm i c2-bin -g
 ```
 
 ## Usage
