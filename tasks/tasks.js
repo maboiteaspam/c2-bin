@@ -381,7 +381,7 @@ module.exports = function (grunt) {
 
 
         // -
-        var urlToFoundation = '';
+        var urlToFoundation = 'git@github.com:maboiteaspam/Foundation.git';
         if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Foundation'))) {
           urlToFoundation = path.join( '..', 'C', 'Foundation')
         }
@@ -389,7 +389,7 @@ module.exports = function (grunt) {
           urlToFoundation = path.join( '..', 'Foundation')
         }
         // -
-        var urlToBootstrap = '';
+        var urlToBootstrap = 'git@github.com:maboiteaspam/Bootstrap.git';
         if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Bootstrap'))) {
           urlToBootstrap = path.join( '..', 'C', 'Bootstrap')
         }
@@ -397,7 +397,7 @@ module.exports = function (grunt) {
           urlToBootstrap = path.join( '..', 'Bootstrap')
         }
         //-
-        var urlToWelcome = '';
+        var urlToWelcome = 'git@github.com:maboiteaspam/Welcome.git';
         if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Welcome'))) {
           urlToWelcome = path.join( '..', 'C', 'Welcome')
         }
