@@ -1,6 +1,8 @@
 # c2-bin
 
-Command and control binary for C projects. C projects are based on C framework, see more about it here https://github.com/maboiteaspam/Welcome
+Command and control binary for C projects.
+
+C projects are based on C framework, see more about it here https://github.com/maboiteaspam/Foundation/blob/master/doc/1-Introduction.md
 
 `c2-bin` brings to you several utilities to work on a C project.
 
