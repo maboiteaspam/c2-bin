@@ -1,6 +1,4 @@
 {
   "name": "<%= NS.toLowerCase().replace(/\\/g, '/') %>",
-  "private": true,
-  "dependencies": {
-  }
+  "private": true
 }

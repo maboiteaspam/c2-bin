@@ -11,22 +11,22 @@
   },
   "autoload": {
     "psr-4": {
-      "<%= NS.replace(/\\/g, "\\\\") %>\\": "src/"
+      "<%= properFilePath(NS+'/') %>": "src/"
     }
   },
   "repositories": [
     {
       "type": "<%= urlToFoundation.match(/git|http|svn/)?'vcs':'path' %>",
-      "url": "<%= urlToFoundation.replace(/\\/g, "\\\\") %>"
+      "url": "<%= urlToFoundation.match(/git|http|svn/)?urlToFoundation:properFilePath(urlToFoundation) %>"
     }
     ,{
-    "type": "<%= urlToBootstrap.match(/git|http|svn/)?'vcs':'path' %>",
-      "url": "<%= urlToBootstrap.replace(/\\/g, "\\\\") %>"
+      "type": "<%= urlToBootstrap.match(/git|http|svn/)?'vcs':'path' %>",
+      "url": "<%= urlToBootstrap.match(/git|http|svn/)?urlToBootstrap:properFilePath(urlToBootstrap) %>"
     }
     <% if (modType && modType.match(/design/)) { %>
     ,{
-    "type": "<%= urlToWelcome.match(/git|http|svn/)?'vcs':'path' %>",
-      "url": "<%= urlToWelcome.replace(/\\/g, "\\\\") %>"
+      "type": "<%= urlToWelcome.match(/git|http|svn/)?'vcs':'path' %>",
+      "url": "<%= urlToWelcome.match(/git|http|svn/)?urlToWelcome:properFilePath(urlToWelcome) %>"
     }
     <% } %>
   ]

@@ -420,7 +420,13 @@ module.exports = function (grunt) {
           urlToBootstrap: urlToBootstrap,
           urlToFoundation: urlToFoundation,
           urlToWelcome: urlToWelcome,
-          modType: modType
+          modType: modType,
+          properFilePath: function (p) {
+            if (process.platform.match(/win/))
+              return p.replace(/\//g, "\\").replace(/\\/g, "\\\\");
+            else
+              return p.replace(/\\/g, "/");
+          }
         });
 
         done();
