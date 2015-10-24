@@ -452,7 +452,7 @@ module.exports = function (grunt) {
           message:"File exists, would like to overwrite ?",
           name:'overwrite'
         }], function( answers ) {
-          then (answers.overwrite==='yes')
+          then (!!answers.overwrite)
         })
       } else {
         then(true)
