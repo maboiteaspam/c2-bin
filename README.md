@@ -64,7 +64,8 @@ Description of available tasks within this binary.
          classes-dump  Generate autoloader for composer
                update  Run composer update command
               install  Run composer install command
-         generate-app  Custom task.
+         generate-app  Generate a C module
+         generate-vcl  Generate a Varnish VCL file
                  open  Open urls and files from a grunt task *
                  init  Alias for "check-module-install", "classes-dump",
                        "cache-init", "http-init", "db-init" tasks.

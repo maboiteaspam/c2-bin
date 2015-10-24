@@ -326,6 +326,18 @@ module.exports = function (grunt) {
   });
 
 
+  var generateFile = function (targetFilePath, filePath, data) {
+
+    var template = grunt.file.read(filePath);
+
+    // Print a success message
+    grunt.log.writeln('File `' + targetFilePath + '` creating..');
+
+    var result = grunt.template.process(template, {data: data});
+
+    // Write the destination file
+    grunt.file.write(targetFilePath, result);
+  };
   var generateDir = function (targetPath, srcPath, data) {
     targetPath = path.normalize(targetPath);
     srcPath = path.normalize(srcPath);
@@ -347,19 +359,11 @@ module.exports = function (grunt) {
       filePath = path.normalize(filePath);
       var targetFilePath = filePath.replace(srcPath, targetPath);
 
-      var template = grunt.file.read(filePath);
-
-      // Print a success message
-      grunt.log.writeln('File `' + targetFilePath + '` creating..');
-
-      var result = grunt.template.process(template, {data: data});
-
-      // Write the destination file
-      grunt.file.write(targetFilePath, result);
+      generateFile(targetFilePath, filePath, data);
     })
   };
 
-  grunt.registerTask('generate-app', function() {
+  grunt.registerTask('generate-app', 'Generate a C module', function() {
     var done = this.async();
 
     inquirer.prompt([{
@@ -433,6 +437,34 @@ module.exports = function (grunt) {
       });
     });
 
+
+  });
+
+  grunt.registerTask('generate-vcl', 'Generate a Varnish VCL file', function() {
+    var done = this.async();
+
+    var vclExists = grunt.file.exists('default.vcl')
+
+    var askIfExists = function (then) {
+      if (vclExists) {
+        inquirer.prompt([{
+          type:'confirm',
+          message:"File exists, would like to overwrite ?",
+          name:'overwrite'
+        }], function( answers ) {
+          then (answers.overwrite==='yes')
+        })
+      } else {
+        then(true)
+      }
+    };
+
+    askIfExists(function (doGenerate) {
+      var data = {};
+      var tplFile = path.join(__dirname, '..', 'templates', 'default-4.0.vcl');
+      if (doGenerate) generateFile('default.vcl', tplFile, data);
+      else done();
+    })
 
   });
 
