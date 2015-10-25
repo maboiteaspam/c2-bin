@@ -1,0 +1,23 @@
+---
+
+attr:
+  id: myForm # set a regular attribute on the form element
+
+# Declare the members of the form under children key.
+children:
+
+  # A text field type
+  # http://symfony.com/doc/current/reference/forms/types/text.html
+  name:
+    type: text
+    validation:
+      - NotBlank: ~
+    options:
+      label: Your name
+      data: John
+
+  # A submit button
+  subscribe:
+    type: submit
+    options:
+      label: subscribe

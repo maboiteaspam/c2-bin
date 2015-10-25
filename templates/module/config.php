@@ -44,6 +44,14 @@ return [
             'driver'    => 'include',
             'cache_dir' => __DIR__ . '/run/modern-layout/',
         ],
+        'forms-fs-store'=>[
+            'driver'    => 'include',
+            'cache_dir' => __DIR__ . '/run/forms-fs/',
+        ],
+        'forms-store'=>[
+            'driver'    => 'include',
+            'cache_dir' => __DIR__ . '/run/forms/',
+        ],
     ],
     'assets.concat'     => false,
     'assets.build_dir'  => 'www/run',

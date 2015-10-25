@@ -52,6 +52,9 @@ class ControllersProvider implements
         if (isset($app['modern.fs'])) {
             $app['modern.fs']->register(__DIR__.'/layouts/', '<%= NS %>');
         }
+        if (isset($app['forms.fs'])) {
+            $app['forms.fs']->register(__DIR__.'/forms/', '<%= NS %>');
+        }
     }
 
     public function connect(Application $app)
