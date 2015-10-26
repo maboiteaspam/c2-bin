@@ -386,28 +386,31 @@ module.exports = function (grunt) {
 
         // -
         var urlToFoundation = 'git@github.com:maboiteaspam/Foundation.git';
-        if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Foundation'))) {
-          urlToFoundation = path.join( '..', 'C', 'Foundation')
-        }
-        if (fs.existsSync(path.join(process.cwd(), '..','Foundation'))) {
-          urlToFoundation = path.join( '..', 'Foundation')
-        }
+
+        // @todo check composer internal to get those link functions working properly,
+        // meanwhile, refere to the documentation to get to know the DEV setup.
+        //if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Foundation'))) {
+        //  urlToFoundation = path.join( '..', 'C', 'Foundation')
+        //}
+        //if (fs.existsSync(path.join(process.cwd(), '..','Foundation'))) {
+        //  urlToFoundation = path.join( '..', 'Foundation')
+        //}
         // -
         var urlToBootstrap = 'git@github.com:maboiteaspam/Bootstrap.git';
-        if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Bootstrap'))) {
-          urlToBootstrap = path.join( '..', 'C', 'Bootstrap')
-        }
-        if (fs.existsSync(path.join(process.cwd(), '..','Bootstrap'))) {
-          urlToBootstrap = path.join( '..', 'Bootstrap')
-        }
+        //if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Bootstrap'))) {
+        //  urlToBootstrap = path.join( '..', 'C', 'Bootstrap')
+        //}
+        //if (fs.existsSync(path.join(process.cwd(), '..','Bootstrap'))) {
+        //  urlToBootstrap = path.join( '..', 'Bootstrap')
+        //}
         //-
         var urlToWelcome = 'git@github.com:maboiteaspam/Welcome.git';
-        if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Welcome'))) {
-          urlToWelcome = path.join( '..', 'C', 'Welcome')
-        }
-        if (fs.existsSync(path.join(process.cwd(), '..', 'Welcome'))) {
-          urlToWelcome = path.join( '..', 'Welcome')
-        }
+        //if (fs.existsSync(path.join(process.cwd(), '..', 'C', 'Welcome'))) {
+        //  urlToWelcome = path.join( '..', 'C', 'Welcome')
+        //}
+        //if (fs.existsSync(path.join(process.cwd(), '..', 'Welcome'))) {
+        //  urlToWelcome = path.join( '..', 'Welcome')
+        //}
 
         var ignores = [
           "composer.phar",
