@@ -16,16 +16,16 @@
   },
   "repositories": [
     {
-      "type": "<%= urlToFoundation.match(/git|http|svn/)?'vcs':'path' %>",
+      "type": "vcs",<% /* composer does not manage well path type and back/forward slashes. so prefer vcs type.*/ %>
       "url": "<%= urlToFoundation.match(/git|http|svn/)?urlToFoundation:properFilePath(urlToFoundation) %>"
     }
     ,{
-      "type": "<%= urlToBootstrap.match(/git|http|svn/)?'vcs':'path' %>",
+      "type": "vcs",<% /* composer does not manage well path type and back/forward slashes. so prefer vcs type.*/ %>
       "url": "<%= urlToBootstrap.match(/git|http|svn/)?urlToBootstrap:properFilePath(urlToBootstrap) %>"
     }
     <% if (modType && modType.match(/design/)) { %>
     ,{
-      "type": "<%= urlToWelcome.match(/git|http|svn/)?'vcs':'path' %>",
+      "type": "vcs",<% /* composer does not manage well path type and back/forward slashes. so prefer vcs type.*/ %>
       "url": "<%= urlToWelcome.match(/git|http|svn/)?urlToWelcome:properFilePath(urlToWelcome) %>"
     }
     <% } %>
