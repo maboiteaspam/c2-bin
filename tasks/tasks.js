@@ -189,7 +189,9 @@ module.exports = function (grunt) {
       JSON.stringify(localComposer, null, 2)
     );
 
+    grunt.log.warn("Setting up folder " + 'vendor/'+packageName);
     grunt.file.mkdir('vendor/'+packageName);
+
     grunt.file.delete('vendor/'+packageName);
     if (process.platform.match(/win/)) {
       exec('MKLINK /J vendor\\'+packageName.replace(/\//, '\\')+' '+p+'');
