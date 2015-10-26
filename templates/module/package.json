@@ -1,0 +1,13 @@
+{
+    "name": "no name for this non node project",
+    "private": true,
+    "description": "no description for this non-node-project",
+    "devDependencies": {
+        "cz-conventional-changelog": "^1.1.4"
+    },
+    "config": {
+        "commitizen": {
+            "path": "node_modules/cz-conventional-changelog"
+        }
+    }
+}
