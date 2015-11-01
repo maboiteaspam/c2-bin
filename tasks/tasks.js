@@ -196,7 +196,7 @@ module.exports = function (grunt) {
     if (process.platform.match(/win/)) {
       exec('MKLINK /J vendor\\'+packageName.replace(/\//, '\\')+' '+p+'');
     } else {
-      exec("ln -s "+p+" vendor/"+packageName);
+      exec("ln -s "+path.relative(p, "vendor/"+packageName+"/../")+" vendor/"+packageName);
     }
 
     grunt.log.subhead("All done!");
