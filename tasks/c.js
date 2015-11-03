@@ -62,6 +62,9 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('start', 'Starts web server for local development purpose', function() {
-    phpHelper.spawn('php -S localhost:8000 -t www app.php', this.async);
+    var done = this.async();
+    phpHelper.spawn('-S localhost:8000 -t www app.php', function () {
+      done();
+    });
   });
 };
