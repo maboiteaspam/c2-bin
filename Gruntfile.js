@@ -38,6 +38,15 @@ module.exports = function (grunt) {
     'start'
   ]);
 
+  // Init, run the app,
+  // but keep an open handle on the process after the task has ended
+  grunt.registerTask('run-async', 'Run the module.', [
+    'init',
+    'fs-cache-dump',
+    'watch',
+    'start-async'
+  ]);
+
   // Generate a new module.
   grunt.registerTask('generate', 'Generate and install a new module', [
     'get-composer',
