@@ -67,4 +67,14 @@ module.exports = function (grunt) {
       done();
     });
   });
+
+  grunt.registerTask('start-async', 'Starts web server for local, and returns asap', function() {
+    var done = this.async();// yes, it won t return at all
+    phpHelper.spawn('-S localhost:8000 -t www app.php', function () {});
+    setTimeout(done, 1000);
+  });
+
+  grunt.registerTask('kill-async', 'Kills the remaining process to let grunt exit properly', function() {
+    phpHelper.cleanUp()
+  });
 };
