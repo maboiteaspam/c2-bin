@@ -94,7 +94,9 @@ module.exports = function (grunt) {
           "phpunit.phar",
           "composer.phar",
           "run/",
-          "vendor/"
+          "vendor/",
+          "node_modules/",
+          "screenshots/"
         ];
         if (modType!=='app') {
           ignores.push("composer.lock")
