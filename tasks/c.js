@@ -11,19 +11,19 @@ module.exports = function (grunt) {
   phpHelper.phpPath = grunt.option('php') || 'php';
   phpHelper.init()
 
-  grunt.registerTask('db-init', 'Initialize the database and its schema according to your app.', function() {
+  grunt.registerTask('db-init', 'Initialize the database and the schema for the registered modules', function() {
     cHelper.spawn('db:init', this.async());
   });
   grunt.registerTask('cache-init', 'Build assets and other pre compiled stuff.', function() {
     cHelper.spawn('cache:init', this.async());
   });
-  grunt.registerTask('http-init', 'Initialize a bridge file for your http server.', function() {
+  grunt.registerTask('http-init', 'Initialize a bridge file for the http server.', function() {
     cHelper.spawn('http:bridge', this.async());
   });
-  grunt.registerTask('check-schema', 'Refresh the DB schema according to your app', function() {
+  grunt.registerTask('check-schema', 'Refresh the DB schema for the registered modules', function() {
     cHelper.spawn('db:refresh', this.async());
   });
-  grunt.registerTask('fs-cache-dump', 'INTERNAL: Dumps all assets path from your app/', function() {
+  grunt.registerTask('fs-cache-dump', 'Dumps path of resources for the registered modules to feed the watcher process', function() {
     var done = this.async();
     var path_to_watch = [];
 
@@ -49,7 +49,7 @@ module.exports = function (grunt) {
 
 
 
-  grunt.registerTask('watch', 'Start watching your application assets for re-build.', function() {
+  grunt.registerTask('watch', 'Start watching the application assets for re-build.', function() {
     var watchPaths = grunt.config.get('path_to_watch');
     if (watchPaths) {
       watcherHelper.spawn( watchPaths ).on('all', function(event, filePath){
@@ -74,7 +74,7 @@ module.exports = function (grunt) {
     setTimeout(done, 1000);
   });
 
-  grunt.registerTask('kill-async', 'Kills the remaining process to let grunt exit properly', function() {
+  grunt.registerTask('kill-async', 'Kills the remaining process of start-async to let grunt exit properly', function() {
     phpHelper.cleanUp()
   });
 };

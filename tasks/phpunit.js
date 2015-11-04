@@ -32,7 +32,7 @@ module.exports = function (grunt) {
     }, true);
   });
 
-  grunt.registerTask('register-phpunit', 'Register phpunit require', function() {
+  grunt.registerTask('register-phpunit', 'Register phpunit requirement in the composer.json', function() {
     var done = this.async();
 
     phpunitHelper.spawn('--version', function (error, stdout, stderr) {
