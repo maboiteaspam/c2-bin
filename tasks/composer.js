@@ -149,13 +149,14 @@ module.exports = function (grunt) {
     );
 
     grunt.log.warn("Setting up folder " + 'vendor/'+packageName);
-    grunt.file.mkdir('vendor/'+packageName);
+    if (packageName.match(/\//))
+      grunt.file.mkdir('vendor/'+packageName.split('/')[0]);
 
-    grunt.file.delete('vendor/'+packageName);
     if (process.platform.match(/win/)) {
       exec('MKLINK /J vendor\\'+packageName.replace(/\//, '\\')+' '+p+'');
     } else {
-      exec("ln -s "+path.relative(p, "vendor/"+packageName+"/../")+" vendor/"+packageName);
+      var k = "vendor/"+(packageName.match(/\//)?packageName.split('/')[0]:packageName)+"/";
+      exec("ln -s "+path.relative(k, p)+" vendor/"+packageName);
     }
 
     grunt.log.subhead("All done!");
