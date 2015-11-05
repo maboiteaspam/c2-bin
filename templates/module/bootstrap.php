@@ -1,29 +1,37 @@
 <?php
 
-// This is the runtime configuration values,
-// it will override values defined in config.php
+// override configuration file values here.
 $runtime = [
-    'debug'                 => true,
+    'debug'                 => true, // this will enable the dashboard
     'env'                   => getenv('APP_ENV') ? getenv('APP_ENV') : 'dev',
     'project.path'          => __DIR__,
     'run.path'              => __DIR__.'/run/',
 ];
-// This are tokens re injected in the configuration file
-// in the form of %token%
+
+// inject some configuration values as %token% into the configuration
 $configTokens = [
     'env',
     'run.path',
     'project.path',
 ];
 
-// application boot starts now
+// by now, boot
 require 'vendor/autoload.php';
+
+// use default C bootstrap, for convenience.
 use \C\Bootstrap\Common as BootHelper;
 
 // Boot helper is not mandatory, but for a quick start, it s helpful.
 $bootHelper = new BootHelper();
 
-$app = $bootHelper->register($runtime, $configTokens);
+/* @var $app \Silex\Application*/
+$bootHelper->setup($runtime, $configTokens);
+
+// add additional modules here,
+// core or web
+
+// register additional cli modules on $app
+//$bootHelper->register($service, $runtime);
 
 <% /* For front end developers, it gives access to a simple controller to develop views. */ %>
 <% if (modType && modType.match(/design/)) { %>
@@ -33,5 +41,10 @@ $app->register($Welcome);
 
 $thisModule = new \<%= NS %>\ControllersProvider();
 $app->register($thisModule);
+
+// disable a module by its service provider FQ class name, or similar
+// $disabled        = $bootHelper->disable('Translator');
+// $service         = $disabled[0];
+// $serviceRuntime  = $disabled[1];
 
 return $bootHelper;

@@ -1,7 +1,14 @@
 <?php
+/* @var $bootHelper \C\Bootstrap\Common */
 $bootHelper = require("bootstrap.php");
-$app = $bootHelper->app;
+
+// boot an app
+$app = $bootHelper->boot();
+
+// ...then mount the web modules
 <% if (modType && modType.match(/design/)) { %>
 $app->mount('/', $Welcome);
 <% } %>
-$app->run();
+
+// run the web instance
+$bootHelper->run();
