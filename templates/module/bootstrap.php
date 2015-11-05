@@ -24,7 +24,6 @@ use \C\Bootstrap\Common as BootHelper;
 // Boot helper is not mandatory, but for a quick start, it s helpful.
 $bootHelper = new BootHelper();
 
-/* @var $app \Silex\Application*/
 $bootHelper->setup($runtime, $configTokens);
 
 // add additional modules here,
@@ -36,11 +35,11 @@ $bootHelper->setup($runtime, $configTokens);
 <% /* For front end developers, it gives access to a simple controller to develop views. */ %>
 <% if (modType && modType.match(/design/)) { %>
 $Welcome = new \C\Welcome\ControllersProvider();
-$app->register($Welcome);
+$bootHelper->register($Welcome);
 <% } %>
 
 $thisModule = new \<%= NS %>\ControllersProvider();
-$app->register($thisModule);
+$bootHelper->register($thisModule);
 
 // disable a module by its service provider FQ class name, or similar
 // $disabled        = $bootHelper->disable('Translator');

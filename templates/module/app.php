@@ -7,6 +7,7 @@ $app = $bootHelper->boot();
 
 // ...then mount the web modules
 <% if (modType && modType.match(/design/)) { %>
+/* @var $Welcome \C\Welcome\ControllersProvider */
 $app->mount('/', $Welcome);
 <% } %>
 
