@@ -14,7 +14,9 @@
   "prefer": "global",
   "license": "WTF",
   "dependencies": {
+    "async": "^1.5.0",
     "chokidar": "^1.2.0",
+    "cline-parser": "^1.0.3",
     "findup-sync": "^0.3.0",
     "glob": "^5.0.15",
     "got": "^4.2.0",
