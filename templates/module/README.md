@@ -6,9 +6,27 @@
 
 ## Install
 
-Git clone the repository...
+Until the module is published,
+add this repository to the `composer` file
+then run `composer update`.
+```
+# composer.json
+,
+    {
+      "type": "git",
+      "url": "git@github.com:[this user/this repo].git
+    }
 
-Or use packagist url ....
+shell
+# composer update
+```
+
+or run `c2-bin require-gh -m=...`
+
+```
+c2-bin require-gh -m=[this user/this repo]
+```
+
 
 ## Registration
 
