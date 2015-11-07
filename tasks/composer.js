@@ -12,7 +12,7 @@ module.exports = function (grunt) {
   composerHelper.verbose = !!grunt.option('verbose');
 
   if (!grunt.option('composer') && fs.existsSync("composer.phar")) {
-    composerHelper.binPath = 'composer.phar '
+    composerHelper.binPath = 'composer.phar'
   }
   phpHelper.phpPath = grunt.option('php') || 'php';
   phpHelper.init()
@@ -244,6 +244,9 @@ module.exports = function (grunt) {
     var url = 'https://raw.githubusercontent.com/'+moduleRepo+'/master/composer.json';
     require('got').stream(url)
       .on('data', function (d) {
+        if (!moduleComposer){
+          grunt.log.ok('Found '+url+'...')
+        }
         moduleComposer += ''+d;
       })
       .on('end', gotIt)
