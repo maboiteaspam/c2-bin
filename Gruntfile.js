@@ -61,6 +61,10 @@ module.exports = function (grunt) {
     'get-composer',
     'update'
   ]);
+  grunt.registerTask('require-gh', 'Install a github repository then run composer update.', [
+    'add-gh-require',
+    'update'
+  ]);
 
   // default task is to Run.
   grunt.registerTask('default', ['run']);

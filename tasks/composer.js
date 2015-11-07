@@ -17,6 +17,9 @@ module.exports = function (grunt) {
   phpHelper.phpPath = grunt.option('php') || 'php';
   phpHelper.init()
 
+  /**
+   * download composer
+   */
   grunt.registerTask('get-composer', 'Get composer.phar', function() {
     var done = this.async();
 
@@ -35,6 +38,9 @@ module.exports = function (grunt) {
     }, true);
   });
 
+  /**
+   * check if composer install was run
+   */
   grunt.registerTask('check-module-install', 'Check if module is locally installed, and do install when needed.', function() {
     if (fs.existsSync("vendor/autoload.php") && !grunt.option('force')) {
       return grunt.log.ok("Module is installed, let s move on !");
@@ -53,6 +59,9 @@ module.exports = function (grunt) {
     }, true);
   });
 
+  /**
+   * use composer to generate a class loader
+   */
   grunt.registerTask('classes-dump', 'Generate autoloader for composer', function() {
     var done = this.async();
     composerHelper.spawn('dumpautoload', function () {
@@ -60,6 +69,9 @@ module.exports = function (grunt) {
     });
   });
 
+  /**
+   * run composer udpate
+   */
   grunt.registerTask('update', 'Run composer update command', function() {
     var done = this.async();
     inquirer.prompt([{
@@ -79,6 +91,9 @@ module.exports = function (grunt) {
     });
   });
 
+  /**
+   * run composer install
+   */
   grunt.registerTask('install', 'Run composer install command', function() {
     var done = this.async();
     inquirer.prompt([{
@@ -98,6 +113,9 @@ module.exports = function (grunt) {
     });
   });
 
+  /**
+   * link a local module to this vendor directory
+   */
   grunt.registerTask('link', 'Link another local package to that project. Useful for development under windows.', function() {
     var argv = minimist(process.argv.slice(2));
 
@@ -165,6 +183,71 @@ module.exports = function (grunt) {
     grunt.log.writeln("  php composer.phar update");
     grunt.log.writeln("");
 
+  });
+
+  /**
+   * install a github repository
+   */
+  grunt.registerTask('add-gh-require', 'Add a github repository to the composer.json', function() {
+    var argv = minimist(process.argv.slice(2));
+    var done = this.async();
+
+
+    var moduleRepo = argv.m || argv.module;
+    var moduleComposer = '';
+    var moduleName = '';
+    var moduleRequire = 'dev-master';
+
+    var localComposer;
+    try{
+      localComposer = JSON.parse(fs.readFileSync("composer.json"))
+    }catch(ex){
+      grunt.log.error("Composer file is malformed, please check composer.json");
+      grunt.log.error(ex.message)
+      return done(ex);
+    }
+
+    if (!localComposer.repositories) localComposer.repositories = [];
+    if (!localComposer.require) localComposer.require = {};
+
+    var gotIt = function () {
+      moduleComposer = JSON.parse(moduleComposer);
+      moduleName = moduleComposer.name;
+
+      if (localComposer.require[moduleName]) {
+        grunt.log.error(
+          "overwriting dependency "+moduleName+":"+
+          localComposer.require[moduleName]+" to "+moduleRequire);
+      }
+      localComposer.require[moduleName] = moduleRequire;
+
+      var found = false;
+      localComposer.repositories.forEach(function (v) {
+        if (v.url.indexOf(moduleRepo)!==-1) {
+          found = true;
+        }
+      })
+      if (!found) {
+        localComposer.repositories.push({
+          type: "git",
+          url: 'git@github.com:'+moduleRepo+'.git'
+        });
+      }
+
+      fs.writeFileSync ( "composer.json",
+        JSON.stringify(localComposer, null, 2)
+      );
+
+      return done();
+    };
+
+    var url = 'https://raw.githubusercontent.com/'+moduleRepo+'/master/composer.json';
+    require('got').stream(url)
+      .on('data', function (d) {
+        moduleComposer += ''+d;
+      })
+      .on('end', gotIt)
+      .on('close', gotIt);
   });
 
 };

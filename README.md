@@ -61,7 +61,13 @@ Tasks about `php` to run and stop a server, from and within `c2-bin`
 
 ###### Composer
 
-`composer` helpers to kick start. Also support for package linking on windows, see `link` task.
+`composer` helpers to kick start.
+
+Also support package linking on windows with `link` task,
+
+and github repository install with `require-gh`.
+
+
 
 ```
          get-composer  Get composer.phar
@@ -72,6 +78,8 @@ Tasks about `php` to run and stop a server, from and within `c2-bin`
               install  Run composer install command
      composer-install  Get composer, then run install
       composer-update  Get composer, then run update
+           require-gh  Install a github repository then run composer update.
+       add-gh-require  Add a github repository to the composer.json
                  link  Link another local package to that project. Useful for
                        development under windows.
 ```
