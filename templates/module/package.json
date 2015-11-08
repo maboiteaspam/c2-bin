@@ -1,7 +1,7 @@
 {
-    "name": "no name for this non node project",
+    "name": "no-name",
     "private": true,
-    "description": "no description for this non-node-project",
+    "description": "no-description",
     "devDependencies": {
         "cz-conventional-changelog": "^1.1.4"
     },
