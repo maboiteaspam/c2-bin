@@ -47,7 +47,7 @@ module.exports = function (grunt) {
     inquirer.prompt([{
       type:'list',
       message:"Which type of module would you like to create :",
-      choices: ['design-component', 'component', 'app'],
+      choices: ['design', 'data', 'app'],
       name:'modType'
     }], function( answers ) {
       var modType = answers.modType;
@@ -96,13 +96,28 @@ module.exports = function (grunt) {
           "run/",
           "vendor/",
           "node_modules/",
-          "screenshots/"
+          "screenshots/",
+          ""
         ];
-        if (modType!=='app') {
+
+        // this really matter.
+        // when it s an app, composer.lock must NOT be ignored,
+        //    because you ll run test against a specific set of version of your module
+        //    and you will want to precisely deploy those versions.
+        // when its a component (data/design), the composer.lock must be ignored,
+        //    so that the main app is the master of the deployed module with specific version.
+        if (!modType.match(/app/)) {
           ignores.push("composer.lock")
         }
 
-        generateDir(process.cwd(), path.join(__dirname, "/../templates/module"), {
+        var moduleTemplate = path.join(__dirname, "/../templates/module");
+        if (modType.match(/data/)) {
+          // data oriented module use a lighter stack
+          // than web oriented module
+          moduleTemplate = path.join(__dirname, "/../templates/module_data");
+        }
+
+        generateDir(process.cwd(), moduleTemplate, {
           NS: NS,
           ignores: ignores,
           urlToBootstrap: urlToBootstrap,

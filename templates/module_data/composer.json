@@ -1,0 +1,21 @@
+{
+  "prefer-stable": true,
+  "minimum-stability": "dev",
+  "name": "<%= NS.toLowerCase().replace(/\\/g, '/') %>",
+  "require": {
+    "silex/silex": "~1.3",
+    "symfony/var-dumper": "^2.7",
+    "c/foundation": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "<%= NS %>": "src/"
+    }
+  },
+  "repositories": [
+    {
+      "type": "vcs", <% /* composer does not manage well path type and back/forward slashes. so prefer vcs type.*/ %>
+      "url": "<%= urlToFoundation.match(/git|http|svn/) ? urlToFoundation : properFilePath(urlToFoundation) %>"
+    }
+  ]
+}
