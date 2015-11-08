@@ -17,19 +17,20 @@ module.exports = function (grunt) {
   grunt.registerTask('get-phpunit', 'Get phpunit.phar', function() {
     var done = this.async();
 
-    phpunitHelper.spawn('--version', function (error, stdout, stderr) {
-      grunt.log.write(stdout);
+    phpunitHelper.spawn('--version', function (error) {
       if (error) {
         grunt.log.warn("Downloading phpunit ...");
         grunt.log.warn("");
         grunt.log.warn("https://phpunit.de/manual/current/en/installation.html");
         grunt.log.warn("");
-        phpunitHelper.download(done);
+        grunt.log.warn(phpunitHelper.pharUrl);
+        phpunitHelper.download(done)
+          .pipe(fs.createWriteStream('phpunit.phar'));
       } else {
         grunt.log.ok("phpunit is available on your system, let s move on !");
         done()
       }
-    }, true);
+    });
   });
 
   grunt.registerTask('register-phpunit', 'Register phpunit requirement in the composer.json', function() {
