@@ -2,8 +2,10 @@ var fs = require('fs');
 var path = require('path');
 var inquirer = require("inquirer");
 var minimist = require('minimist');
+var temp = require('temp');
 var phpHelper = require("../lib/php-helper");
 var composerHelper = require("../lib/composer-helper");
+var dlHelper = require("../lib/dl-helper");
 var exec = require('child_process').exec;
 
 module.exports = function (grunt) {
@@ -25,12 +27,22 @@ module.exports = function (grunt) {
 
     composerHelper.spawn('--version', function (error, stdout, stderr) {
       grunt.log.write(stdout);
-      if (error) {
+      if (error || grunt.option('force')) {
         grunt.log.warn("Downloading composer installer ...");
         grunt.log.warn("");
         grunt.log.warn("https://getcomposer.org/");
         grunt.log.warn("");
-        composerHelper.download(done);
+        grunt.file.delete('composer.phar');
+        var tempName = temp.path({suffix: '.php'});
+        dlHelper.progress(
+          dlHelper.download(composerHelper.pharUrl, {encoding:null}, function gotInstaller(){
+            phpHelper.spawn(tempName, function gotComposer(){
+              grunt.file.delete(tempName)
+              done();
+            })
+          })
+        ).pipe(fs.createWriteStream(tempName));
+
       } else {
         grunt.log.ok("Composer is in your project, let s move on !");
         done()

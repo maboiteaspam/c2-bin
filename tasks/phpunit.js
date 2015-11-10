@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var phpunitHelper = require("../lib/phpunit-helper");
 var phpHelper = require("../lib/php-helper");
+var dlHelper = require("../lib/dl-helper");
 
 module.exports = function (grunt) {
 
@@ -18,14 +19,16 @@ module.exports = function (grunt) {
     var done = this.async();
 
     phpunitHelper.spawn('--version', function (error) {
-      if (error) {
-        grunt.log.warn("Downloading phpunit ...");
-        grunt.log.warn("");
+      if (error || grunt.option('force')) {
         grunt.log.warn("https://phpunit.de/manual/current/en/installation.html");
         grunt.log.warn("");
+        grunt.log.warn("Downloading phpunit now");
+        grunt.log.warn("");
         grunt.log.warn(phpunitHelper.pharUrl);
-        phpunitHelper.download(done)
-          .pipe(fs.createWriteStream('phpunit.phar'));
+        grunt.file.delete('phpunit.phar')
+        dlHelper.progress( dlHelper.download(
+            phpunitHelper.pharUrl, {encoding:null}, done
+        )).pipe(fs.createWriteStream('phpunit.phar'));
       } else {
         grunt.log.ok("phpunit is available on your system, let s move on !");
         done()
@@ -70,10 +73,4 @@ module.exports = function (grunt) {
 
     }, true);
   });
-
-  //grunt.registerTask('phpunit', 'Run phpunit.phar', function() {
-  //  phpunitHelper.spawn('', function (error, stdout, stderr) {
-  //  }, true);
-  //});
-
 };
