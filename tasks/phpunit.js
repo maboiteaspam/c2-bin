@@ -27,8 +27,9 @@ module.exports = function (grunt) {
         grunt.log.warn(phpunitHelper.pharUrl);
         grunt.file.delete('phpunit.phar')
         dlHelper.progress( dlHelper.download(
-            phpunitHelper.pharUrl, {encoding:null}, done
-        )).pipe(fs.createWriteStream('phpunit.phar'));
+            phpunitHelper.pharUrl, {encoding:null}
+        )).pipe(fs.createWriteStream('phpunit.phar'))
+          .on('end', done);
       } else {
         grunt.log.ok("phpunit is available on your system, let s move on !");
         done()
