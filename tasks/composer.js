@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var async = require('async');
 var inquirer = require("inquirer");
 var minimist = require('minimist');
 var temp = require('temp');
@@ -138,7 +139,7 @@ module.exports = function (grunt) {
     }
 
     if (!fs.existsSync(p+"/composer.json")) {
-      return grunt.log.error("This folder does not have the reuired composer.json file: "+ p );
+      return grunt.log.error("This folder does not have the required composer.json file: "+ p );
     }
 
     var packageComposer = JSON.parse(fs.readFileSync(p+"/composer.json"));
@@ -163,12 +164,13 @@ module.exports = function (grunt) {
 
     var found = false;
     localComposer.repositories.forEach(function (v) {
-      if (v.url.match(packageName)) {
+      if (v.link && path.resolve(v.url)==path.resolve(p)) {
         found = true;
       }
     })
     if (!found) {
       localComposer.repositories.push({
+        link: true,
         type: "path",
         url: p
       });
@@ -178,22 +180,148 @@ module.exports = function (grunt) {
       JSON.stringify(localComposer, null, 2)
     );
 
-    grunt.log.warn("Setting up folder " + 'vendor/'+packageName);
-    if (packageName.match(/\//))
-      grunt.file.mkdir('vendor/'+packageName.split('/')[0]);
+    var done = this.async();
 
-    if (process.platform.match(/win/)) {
-      exec('MKLINK /J vendor\\'+packageName.replace(/\//, '\\')+' '+p+'');
+    var allDone = function (){
+      grunt.log.subhead("All done!");
+      grunt.log.ok("Don't forget to run composer update");
+      grunt.log.writeln("");
+      grunt.log.writeln("  php composer.phar update");
+      grunt.log.writeln("");
+      done();
+    };
+    var createLink = function (packageName, localPath, then) {
+      if (packageName.match(/\//))
+        grunt.file.mkdir('vendor/'+packageName.split('/')[0]);
+
+      var t = 'vendor/'+packageName;
+      if (grunt.file.exists(t)) {
+        var stats = fs.lstatSync(t);
+        if (stats.isSymbolicLink()) {
+          fs.unlinkSync(t)
+        } else {
+          grunt.file.delete(t)
+        }
+      }
+
+      if (process.platform.match(/win/)) {
+        fs.symlinkSync(localPath, 'vendor/'+packageName.replace(/\//, '\\'), 'junction');
+      } else {
+        var k = "vendor/"+(packageName.match(/\//)?packageName.split('/')[0]:packageName)+"/";
+        fs.symlinkSync(path.relative(k, localPath), 'vendor/'+packageName);
+      }
+
+      if (then) then();
+    };
+    var confirmBecauseFileExists = function (packageName, then){
+      var questions = [
+        {
+          type: "confirm",
+          name: "toBeDeleted",
+          message: packageName+' already exists, please confirm to delete it',
+          default: false
+        }
+      ];
+      inquirer.prompt( questions, function( answers ) {
+        then(!!answers.toBeDeleted);
+      });
+    };
+
+    if (grunt.file.exists('vendor/'+packageName)) {
+      confirmBecauseFileExists(packageName, function( okNok ) {
+        if (okNok) createLink(packageName, p), allDone;
+      });
     } else {
-      var k = "vendor/"+(packageName.match(/\//)?packageName.split('/')[0]:packageName)+"/";
-      exec("ln -s "+path.relative(k, p)+" vendor/"+packageName);
+      createLink(packageName, p, allDone);
+    }
+  });
+
+  /**
+   * re-link modules, useful to run after compose update
+   */
+  grunt.registerTask('re-link', 'Lookup dependencies form the composer json, select those marked as link, and link', function() {
+    //var argv = minimist(process.argv.slice(2));
+
+    var localComposer;
+    try{
+      localComposer = JSON.parse(fs.readFileSync("composer.json"))
+    }catch(ex){
+      grunt.log.error("Composer file is malformed, please check composer.json");
+      grunt.log.error(ex.message)
+      return false;
     }
 
-    grunt.log.subhead("All done!");
-    grunt.log.ok("Don't forget to run composer update");
-    grunt.log.writeln("");
-    grunt.log.writeln("  php composer.phar update");
-    grunt.log.writeln("");
+    if (!localComposer.repositories) localComposer.repositories = [];
+
+
+    var done = this.async();
+
+    var allDone = function (){
+      grunt.log.subhead("All done!");
+      grunt.log.ok("Don't forget to run composer update");
+      grunt.log.writeln("");
+      grunt.log.writeln("  php composer.phar update");
+      grunt.log.writeln("");
+      done();
+    };
+    var createLink = function (packageName, localPath, then) {
+      if (packageName.match(/\//))
+        grunt.file.mkdir('vendor/'+packageName.split('/')[0]);
+
+      var t = 'vendor/'+packageName;
+      if (grunt.file.exists(t)) {
+        var stats = fs.lstatSync(t);
+        if (stats.isSymbolicLink()) {
+          fs.unlinkSync(t)
+        } else {
+          grunt.file.delete(t)
+        }
+      }
+
+      if (process.platform.match(/win/)) {
+        fs.symlinkSync(localPath, 'vendor/'+packageName.replace(/\//, '\\'), 'junction');
+      } else {
+        var k = "vendor/"+(packageName.match(/\//)?packageName.split('/')[0]:packageName)+"/";
+        fs.symlinkSync(path.relative(k, localPath), 'vendor/'+packageName);
+      }
+
+      if (then) then();
+    };
+    var confirmBecauseFileExists = function (packageName, then){
+      var questions = [
+        {
+          type: "confirm",
+          name: "toBeDeleted",
+          message: packageName+' already exists, please confirm to delete it',
+          default: false
+        }
+      ];
+      inquirer.prompt( questions, function( answers ) {
+        then(!!answers.toBeDeleted);
+      });
+    };
+
+    var links = [];
+    localComposer.repositories.forEach(function (v) {
+      if (v.link && grunt.file.exists(v.url)) {
+        links.push(function (next) {
+          var packageComposer = JSON.parse(fs.readFileSync(v.url+"/composer.json"));
+          var packageName = packageComposer.name;
+          if (grunt.file.exists('vendor/'+packageName)) {
+            confirmBecauseFileExists(packageName, function( okNok ) {
+              if (okNok) {
+                createLink(packageName, v.url);
+              }
+              next()
+            });
+          } else {
+            createLink(packageName, v.url);
+            next()
+          }
+        });
+      }
+    });
+    async.series(links, allDone)
 
   });
 
