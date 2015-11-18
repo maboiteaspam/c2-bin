@@ -21,7 +21,7 @@ module.exports = function (grunt) {
   });
 
   // Initialize the app to make it ready to run.
-  grunt.registerTask('init', [
+  grunt.registerTask('init', 'Initialize the module and make it ready t run', [
     'check-module-install',
     'classes-dump',
     'cache-init',
@@ -30,7 +30,7 @@ module.exports = function (grunt) {
   ]);
 
   // Init, run, and open the app in your app.
-  grunt.registerTask('run', [
+  grunt.registerTask('run', 'Run the module.', [
     'init',
     'fs-cache-dump',
     'open:browser',
@@ -38,17 +38,26 @@ module.exports = function (grunt) {
     'start'
   ]);
 
+  // Init, run the app,
+  // but keep an open handle on the process after the task has ended
+  grunt.registerTask('run-async', 'Run the module.', [
+    'init',
+    'fs-cache-dump',
+    'watch',
+    'start-async'
+  ]);
+
   // Generate a new module.
-  grunt.registerTask('generate', [
+  grunt.registerTask('generate', 'Generate and install a new module', [
     'get-composer',
     'generate-app',
     'install'
   ]);
-  grunt.registerTask('composer-install', [
+  grunt.registerTask('composer-install', 'Get composer, then run install', [
     'get-composer',
     'install'
   ]);
-  grunt.registerTask('composer-update', [
+  grunt.registerTask('composer-update', 'Get composer, then run update', [
     'get-composer',
     'update'
   ]);

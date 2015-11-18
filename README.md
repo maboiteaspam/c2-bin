@@ -45,7 +45,51 @@ If `[task name]` is not provided,
 
 ## Tasks
 
-Description of available tasks within this binary.
+As it has grown as i was using it, it addresses various concerns.
+
+To help you get a better overview, find a categorized list of the task until further improvements.
+
+###### PHP
+
+Tasks about `php` to run and stop a server, from and within `c2-bin`
+
+```
+                start  Starts web server for local development purpose
+          start-async  Starts web server for local, and returns asap
+           kill-async  Kills the remaining process to let grunt exit properly
+```
+
+###### Composer
+
+`composer` helpers to kick start. Also support for package linking on windows, see `link` task.
+
+```
+         get-composer  Get composer.phar
+ check-module-install  Check if module is locally installed, and do install
+                       when needed.
+         classes-dump  Generate autoloader for composer
+               update  Run composer update command
+              install  Run composer install command
+     composer-install  Get composer, then run install
+      composer-update  Get composer, then run update
+                 link  Link another local package to that project. Useful for
+                       development under windows.
+```
+
+
+
+###### PhpUnit
+
+`phpunit` helpers to kick start.
+
+```
+          get-phpunit  Get phpunit.phar
+     register-phpunit  Register phpunit require
+```
+
+###### C
+
+`C` helpers to `generate` and `run` modules.
 
 ```
               db-init  Initialize the database and its schema according to your
@@ -53,26 +97,22 @@ Description of available tasks within this binary.
            cache-init  Build assets and other pre compiled stuff.
             http-init  Initialize a bridge file for your http server.
          check-schema  Refresh the DB schema according to your app
-        fs-cache-dump  INTERNAL: Dumps all assets path from your app/
-                 link  Link another local package to that project. Useful for
-                       development under windows.
+        fs-cache-dump  Dumps path of resources from the registred modules to feed the watcher process
                 watch  Start watching your application assets for re-build.
-                start  Starts web server for local development purpose
-         get-composer  Generate autoloader for composer
- check-module-install  Check if module is locally installed, and do install
-                       when needed.
-         classes-dump  Generate autoloader for composer
-               update  Run composer update command
-              install  Run composer install command
          generate-app  Generate a C module
          generate-vcl  Generate a Varnish VCL file
+                 init  Initialize the module and make it ready t run
+                  run  Run the module.
+            run-async  Run the module.
+             generate  Generate and install a new module
+```
+
+###### Misc
+
+```
+                 link  Link another local package to that project. Useful for
+                       development under windows.
                  open  Open urls and files from a grunt task *
-                 init  Alias for "check-module-install", "classes-dump",
-                       "cache-init", "http-init", "db-init" tasks.
-                  run  Alias for "init", "fs-cache-dump", "open:browser",
-                       "watch", "start" tasks.
-             generate  Alias for "get-composer", "generate-app" tasks.
-              default  Alias for "run" task.
 ```
 
 ## Development
