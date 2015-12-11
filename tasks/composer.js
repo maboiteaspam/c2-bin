@@ -239,7 +239,7 @@ module.exports = function (grunt) {
   /**
    * re-link modules, useful to run after compose update
    */
-  grunt.registerTask('re-link', 'Lookup dependencies form the composer json, select those marked as link, and link', function() {
+  grunt.registerTask('re-link', 'Lookup dependencies from the composer json, select those marked as link, and link', function() {
     //var argv = minimist(process.argv.slice(2));
 
     var localComposer;
@@ -303,19 +303,19 @@ module.exports = function (grunt) {
 
     var links = [];
     localComposer.repositories.forEach(function (v) {
-      if (v.link && grunt.file.exists(v.url)) {
+      if (v.link && grunt.file.exists(v.link)) {
         links.push(function (next) {
-          var packageComposer = JSON.parse(fs.readFileSync(v.url+"/composer.json"));
+          var packageComposer = JSON.parse(fs.readFileSync(v.link+"/composer.json"));
           var packageName = packageComposer.name;
           if (grunt.file.exists('vendor/'+packageName)) {
             confirmBecauseFileExists(packageName, function( okNok ) {
               if (okNok) {
-                createLink(packageName, v.url);
+                createLink(packageName, v.link);
               }
               next()
             });
           } else {
-            createLink(packageName, v.url);
+            createLink(packageName, v.link);
             next()
           }
         });
@@ -337,6 +337,13 @@ module.exports = function (grunt) {
     var moduleComposer = '';
     var moduleName = '';
     var moduleRequire = 'dev-master';
+
+    if (!moduleRepo || moduleRepo===true) {
+      grunt.log.warn('Please use ')
+      grunt.log.warn('c2-bin require-gh -m user/project')
+      grunt.log.warn('c2-bin require-gh --module user/project')
+      grunt.fail.warn('command misspelled')
+    }
 
     var localComposer;
     try{
